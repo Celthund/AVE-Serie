@@ -10,4 +10,6 @@ namespace FireMapper
         void Update(object obj);
         void Delete(object keyValue);
     }
+    
+    
 }
