@@ -5,29 +5,6 @@
    * correct path to Firebase key json file in constant `FIREBASE_CREDENTIALS_PATH`
    * project id in constant `FIREBASE_PROJECT_ID`
 
-**FIRST create your Firestore database following the guide [isel-AVE-2021-FireStore-get-started.md](isel-AVE-2021-FireStore-get-started.md)**
-
-***
-
-Assignments:
-1. Published 28-3-2021, DEADLINE: 18-4-2021, [FireMapper-1-reflection](Assignments/FireMapper-1-reflection.md)
-2. TBD
-3. TBD
-
-***
-
-High level view of projects (in `<<...>>`) and core types:
-
-<img src="Assets/FireMapper.svg">
-
-***
-
-<a target="_blank" href="Assets/FireMapper.pdf">
-    <img width="500" src="Assets/FireMapper.gif">
-</a>
-
-***
-
 Run tests with `dotnet test --logger "console;verbosity=detailed"` to see `Console` output.
 
 List tests with `dotnet test -t`
