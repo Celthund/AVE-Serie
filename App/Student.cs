@@ -1,11 +1,4 @@
-
-namespace FireMapper{
-
+namespace App{
     [FireCollection("Students")]
-    public record Student(
-    [property:FireKey] long number,
-    string name,
-    int Classroom)  
-{}
-        
-     }
+    public record Student( [property:FireKey] int number, string name, ClassroomInfo classroom)  {}
+}

@@ -14,7 +14,7 @@ namespace FireMapper
         string CredentialsPath;
         string ProjectId;
         List<PropertyInfo> properties;
-        static int objPropertiesNumber = 0;
+        Dictionary<Type, IDataMapper> collections = new Dictionary<Type, IDataMapper>();
 
         public FireDataMapper(Type objType, string ProjectId, string Collection, string CredentialsPath)
         {
@@ -22,7 +22,7 @@ namespace FireMapper
             this.Collection = Collection;
             this.CredentialsPath = CredentialsPath;
             this.ProjectId = ProjectId;
-            this.properties = setProperties();
+            setProperties();
             setDataSource();
         }
 
@@ -45,9 +45,12 @@ namespace FireMapper
         IEnumerable IDataMapper.GetAll()
         {
             List<object> objs = new List<object>();
+            object obj;
             foreach (var item in dataSource.GetAll())
             {
-                objs.Add(CreateObject(item));
+                obj = CreateObject(item);
+                if (obj is not null)
+                    objs.Add(obj);
             }
             return objs;
         }
@@ -71,7 +74,6 @@ namespace FireMapper
 
         void setDataSource()
         {
-
             foreach (PropertyInfo p in properties)
             {
                 if (p.IsDefined(typeof(FireKey)))
@@ -79,11 +81,10 @@ namespace FireMapper
                     dataSource = new FireDataSource(ProjectId, Collection, p.Name, CredentialsPath);
                     break;
                 }
-
             }
         }
 
-        List<PropertyInfo> setProperties()
+        void setProperties()
         {
             List<PropertyInfo> properties = new List<PropertyInfo>();
 
@@ -91,25 +92,42 @@ namespace FireMapper
             {
                 if (!p.IsDefined(typeof(FireIgnore)))
                 {
+                    if (p.PropertyType.IsDefined(typeof(FireCollection)))
+                    {
+                        IDataMapper db = new FireDataMapper(
+                            p.PropertyType,
+                            ProjectId,
+                            ((FireCollection)p.PropertyType.GetCustomAttributes(typeof(FireCollection), false).GetValue(0)).collection, // Value of colletion propriety of Record.
+                            CredentialsPath);
+                        collections[p.PropertyType] = db;
+
+                    }
                     properties.Add(p);
                 }
-                objPropertiesNumber++;
-
             }
-            return properties;
+            this.properties = properties;
         }
+
+
 
         object CreateObject(Dictionary<string, object> dictionary)
         {
-
-            object[] newObjProperties = new object[objPropertiesNumber];
+            if (dictionary is null) return null;
+            object[] newObjProperties = new object[properties.Count];
             int i = 0;
             foreach (PropertyInfo p in properties)
             {
                 if (dictionary.ContainsKey(p.Name))
                 {
-                    object value = Convert.ChangeType(dictionary[p.Name], p.PropertyType);
-                    newObjProperties[i] = value;
+                    if (p.PropertyType.IsPrimitive || !collections.ContainsKey(p.PropertyType))
+                    {
+                        object value = Convert.ChangeType(dictionary[p.Name], p.PropertyType);
+                        newObjProperties[i] = value;
+                    }
+                    else
+                    {
+                        newObjProperties[i] = collections[p.PropertyType].GetById(dictionary[p.Name]);
+                    }
                 }
                 else
                 {
