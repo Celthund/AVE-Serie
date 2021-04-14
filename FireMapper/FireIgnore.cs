@@ -1,3 +1,3 @@
 using System;
 
-public class FireIgnore : Attribute{}
+public class FireIgnore : Attribute { }

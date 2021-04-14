@@ -14,11 +14,15 @@ namespace App
             string ProjectId = "ave-trab1-g02";
             string Collection = "students";
             IDataMapper dataMapper = new FireDataMapper(typeof(Student), ProjectId, Collection, CredentialsPath);
-            object s2 = dataMapper.GetById(12345);
-            IEnumerable<Dictionary<string, object>> x = (IEnumerable<Dictionary<string, object>>)dataMapper.GetAll();
-            Console.WriteLine("Hello");
-
-
+            //Student s1 = new Student(2534,"Serafim", 2);
+            Student s2 = (Student)dataMapper.GetById(12345);
+            //dataMapper.Add(s1);
+            //dataMapper.Delete(2534);
+            //dataMapper.Update(s1);
+            foreach (Student item in dataMapper.GetAll())
+            {
+                Console.WriteLine(item);
+            }
         }
     }
 }

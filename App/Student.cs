@@ -5,7 +5,7 @@ namespace FireMapper{
     public record Student(
     [property:FireKey] long number,
     string name,
-    [property:FireIgnore] int Classroom)  
+    int Classroom)  
 {}
         
      }

@@ -1,3 +1,3 @@
 using System;
 
-public class FireKey : Attribute{}
+public class FireKey : Attribute { }
