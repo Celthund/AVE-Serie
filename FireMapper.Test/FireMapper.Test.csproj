@@ -21,7 +21,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FireMapper\FireMapper.csproj" />
-    <ProjectReference Include="..\FireSource.Test\FireSource.Test.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Resources\fire-students-e339a-firebase-adminsdk-2y9k9-adae1534d9.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\isel-AVE-2021.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

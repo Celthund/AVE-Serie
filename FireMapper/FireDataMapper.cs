@@ -30,11 +30,29 @@ namespace FireMapper
         {
             Dictionary<string, object> dictionary = new Dictionary<string, object>();
             foreach (PropertyInfo p in properties)
-            {
-                dictionary.Add(p.Name, p.GetValue(obj, null));
+            {   //property classroom é do tipo object. Necessário retirar apenas o valor do campo token como string
+                // para introduzir na DB
+                if (collections != null && collections.ContainsKey(p.PropertyType) && p.GetValue(obj) != null)
+                {
+                    foreach (PropertyInfo item in p.PropertyType.GetProperties())
+                    {
+                        if (item.IsDefined(typeof(FireKey)))
+                        {
+                            object propertyObj = p.GetValue(obj, null);
+                            //verifica se existe a classroom
+                            object objct = collections[p.PropertyType].GetById(item.GetValue(propertyObj, null));
+                            if (objct != null)
+                                dictionary.Add(p.Name, item.GetValue(propertyObj, null));
+                            else return;
+                        }
+                    }
+                }
+                else
+                {
+                    dictionary.Add(p.Name, p.GetValue(obj, null));
+                }
             }
             dataSource.Add(dictionary);
-
         }
 
         void IDataMapper.Delete(object keyValue)
@@ -67,7 +85,24 @@ namespace FireMapper
             Dictionary<string, object> dictionary = new Dictionary<string, object>();
             foreach (PropertyInfo p in properties)
             {
-                dictionary.Add(p.Name, p.GetValue(obj, null));
+                if (collections != null && collections.ContainsKey(p.PropertyType) && p.GetValue(obj) != null)
+                {
+                    foreach (PropertyInfo item in p.PropertyType.GetProperties())
+                    {
+                        if (item.IsDefined(typeof(FireKey)))
+                        {
+                            object propertyObj = p.GetValue(obj, null);
+                            //verifica se existe a classroom na DB
+                            object objct = collections[p.PropertyType].GetById(item.GetValue(propertyObj, null));
+                            if (objct != null)
+                                dictionary.Add(p.Name, item.GetValue(propertyObj, null));
+                        }
+                    }
+                }
+                else
+                {
+                    dictionary.Add(p.Name, p.GetValue(obj, null));
+                }
             }
             dataSource.Update(dictionary);
         }

@@ -2,13 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using Google.Cloud.Firestore;
 
 namespace FireMapper.Test
 {
     /// <summary>
     /// A single test context shared among all the tests.
-    /// Test classes should implement IClassFixture<FireStoreFixture> and
+    /// Test classes should implement IClassFixture<FireMapperFixture> and
     /// provide a constructor to inject a Fixture object.
     /// </summary>
     public class FireMapperFixture : IDisposable
@@ -35,15 +36,18 @@ namespace FireMapper.Test
             ///
             /// ... clean up test data from the database ...
             /// 
-            Clear(studentsDb, "number");
-            Clear(classroomsDb, "token");
+            Clear(studentsDb);
+            Clear(classroomsDb);
         }
-        private static void Clear(IDataMapper source, string key)
+        private static void Clear(IDataMapper source)
         {
             IEnumerable docs = source.GetAll();
-            foreach (var pairs in docs)
+            foreach (var item in docs)
             {
-                source.Delete(pairs);
+                foreach(PropertyInfo p in item.GetType().GetProperties()){
+                    if(p.IsDefined(typeof(FireKey)))
+                        source.Delete(p.GetValue(item));
+                }
             }
         }
 
