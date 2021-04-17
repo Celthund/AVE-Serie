@@ -7,80 +7,116 @@ using Xunit.Abstractions;
 
 namespace FireMapper.Test
 {
-    [Collection("FireMapperFixture collection")]
+    [Collection("FireStoreMapperFixture collection")]
     public class FireDataMapperTest
     {
         readonly ITestOutputHelper output;
-        private readonly FireMapperFixture fix;
-        private readonly IDataMapper studentsDb;
-        private readonly IDataMapper classroomsDb;
+        private readonly FireStoreMapperFixture fix;
+        private readonly IDataMapper colonosDb;
+        private readonly IDataMapper monitoresDb;
 
-        public FireDataMapperTest(ITestOutputHelper output, FireMapperFixture fix)
+        public FireDataMapperTest(ITestOutputHelper output, FireStoreMapperFixture fix)
         {
             this.output = output;
             this.fix = fix;
-            this.studentsDb = fix.studentsDb;
-            this.classroomsDb = fix.classroomsDb;
+            this.monitoresDb = fix.dataMapperM;
+            this.colonosDb = fix.dataMapperCo;
+
         }
-            
+
         [Fact]
         public void GetAll()
         {
             int count = 0;
-            foreach(var dic in studentsDb.GetAll()) {
-                Console.WriteLine(dic);
+            foreach (var item in colonosDb.GetAll())
+            {
+                output.WriteLine(item.ToString());
                 count++;
             }
-            Assert.Equal(9, count);
-        }
-        
-        [Fact]
-        public void GetById()
-        {
-            Student st = (Student)studentsDb.GetById(44999);
-            Assert.Equal("Bartiskovley Navriska Bratsha Sverilev", st.name);
+            Assert.Equal(4, count);
         }
 
         [Fact]
-        public void UpdateStudent()
+        public void GetById()
         {
-            studentsDb.Update(new Student(55999,"Nuwanda Dead Poets Society",new ClassroomInfo("TLI41D","Joao Leandro")));
-            Student st = (Student) studentsDb.GetById(55999);
-            Assert.Equal("Nuwanda Dead Poets Society",st.name);
+            Colono colono = (Colono)colonosDb.GetById(4);
+            Assert.Equal("Ines Fontes", colono.nome);
         }
+
+        [Fact]
+        public void UpdateColono()
+        {
+            Pessoa p1 = new Pessoa(111, "Tiago Ribeiro", "Porto", 929938476, "ribeiro@gmail.com");
+            Grupo g1 = new Grupo("iniciados");
+            Campo campo1 = new Campo(123, "Campo Ferias 1", "Rua da Liberdade", "Lisboa", "2341-123", "www.CF1.pt", "[90° N, 90° W]");
+
+            colonosDb.Update(new Colono(1, "Ana Maria", "12-09-2003", 929992836, 19987, 192456, p1, g1, campo1));
+            Colono colono = (Colono)colonosDb.GetById(1);
+            Assert.Equal("Ana Maria", colono.nome);
+        }
+
         [Fact]
         public void AddGetAndDeleteAndGetAgain()
         {
             ///
-            /// Arrange and Insert new Student
+            /// Arrange and Insert new Colono
             /// 
-            ClassroomInfo cl = new ClassroomInfo("TLI41D","Joao Leandro");
-            Student st = new Student(823648, "Ze Manel", cl);
-            studentsDb.Add(st);
+            Pessoa p1 = new Pessoa(111, "Tiago Ribeiro", "Porto", 929938476, "ribeiro@gmail.com");
+            Grupo g1 = new Grupo("iniciados");
+            Campo campo1 = new Campo(123, "Campo Ferias 1", "Rua da Liberdade", "Lisboa", "2341-123", "www.CF1.pt", "[90° N, 90° W]");
+
+            Colono colono = new Colono(5, "Paulo Alves", "05-10-2000", 91882255, 99833, 224433, p1, g1, campo1);
+            colonosDb.Add(colono);
             /// 
-            /// Get newby Student
+            /// Get newby Colono
             /// 
-            Student actual = (Student) studentsDb.GetById(st.number);
-            Assert.Equal(st.name, actual.name );
-            Assert.Equal(st.number, actual.number);
-            Assert.Equal(st.classroom.token, actual.classroom.token);
+            Colono actual = (Colono)colonosDb.GetById(colono.id);
+            Assert.Equal(colono.id, actual.id);
+            Assert.Equal(colono.nome, actual.nome);
+            Assert.Equal(colono.dtnasc, actual.dtnasc);
+            Assert.Equal(colono.contacto, actual.contacto);
+            Assert.Equal(colono.ccidadao, actual.ccidadao);
+            Assert.Equal(colono.cutente, actual.cutente);
+            Assert.Equal(colono.eeducacao.id, actual.eeducacao.id);
+            Assert.Equal(colono.grupo.nome, actual.grupo.nome);
+            Assert.Equal(colono.campoid.id, actual.campoid.id);
             /// 
-            /// Remove Student
+            /// Remove Colono
             /// 
-            studentsDb.Delete(st.number);
-            Assert.Null(studentsDb.GetById(st.number));
+            colonosDb.Delete(colono.id);
+            Assert.Null(colonosDb.GetById(colono.id));
+            ///
+            /// Arrange and Insert new Monitor
+            /// 
+            Pessoa p2 = new Pessoa(222, "Tiago Silva", "Lisboa", 93766876, "silva@gmail.com");
+            Monitor m1 = new Monitor(p2, campo1, g1);
+            monitoresDb.Add(m1);
+            /// 
+            /// Get newby Monitor
+            /// 
+            
+            Monitor actualm = (Monitor)monitoresDb.GetById(p2.id);
+            Assert.Equal(actualm.id.id, p2.id);
+            Assert.Equal(actualm.gruponome.nome, g1.nome);
+            Assert.Equal(actualm.campoid.id, campo1.id);
+            /// 
+            /// Remove Monitor
+            /// 
+            monitoresDb.Delete(actualm.id.id);
+            Assert.Null(monitoresDb.GetById(m1.id.id));
         }
-        /*
-        static string ToString(Dictionary<string, object> source) {
+
+        static string ToString(Dictionary<string, object> source)
+        {
             StringBuilder buffer = new StringBuilder();
             buffer.Append('{');
-            foreach(var pair in source) {
+            foreach (var pair in source)
+            {
                 buffer.Append($"{pair.Key} : {pair.Value},");
             }
-            if(buffer.Length > 1) buffer.Length--; // Remove extra comma
+            if (buffer.Length > 1) buffer.Length--; // Remove extra comma
             buffer.Append('}');
             return buffer.ToString();
         }
-        */
     }
 }
