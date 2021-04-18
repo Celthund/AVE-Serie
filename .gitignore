@@ -5,7 +5,6 @@
 
 
 # Do not push Firebase key file to Git
-*firebase-adminsdk*
 
 # Ignore coverage
 coverage/
