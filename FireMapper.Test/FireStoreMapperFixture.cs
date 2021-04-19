@@ -1,9 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
-using Google.Cloud.Firestore;
+using FireSource;
 
 namespace FireMapper.Test
 {
@@ -23,11 +21,12 @@ namespace FireMapper.Test
         const string CollectionM = "Monitores";
         const string SOURCE_ITEMS = "Resources/isel-AVE-2021.txt";
 
-        public readonly IDataMapper dataMapperCa = new FireDataMapper(typeof(Campo), ProjectId, CollectionCa, CredentialsPath);
-        public readonly IDataMapper dataMapperP = new FireDataMapper(typeof(Pessoa), ProjectId, CollectionP, CredentialsPath);
-        public readonly IDataMapper dataMapperG = new FireDataMapper(typeof(Grupo), ProjectId, CollectionG, CredentialsPath);
-        public readonly IDataMapper dataMapperCo = new FireDataMapper(typeof(Colono), ProjectId, CollectionCo, CredentialsPath);
-        public readonly IDataMapper dataMapperM = new FireDataMapper(typeof(Monitor), ProjectId, CollectionM, CredentialsPath);
+        private static Type type = typeof(WeakDataSource);
+        public readonly IDataMapper dataMapperCa = new FireDataMapper(typeof(Campo), ProjectId, CollectionCa, CredentialsPath, type);
+        public readonly IDataMapper dataMapperP = new FireDataMapper(typeof(Pessoa), ProjectId, CollectionP, CredentialsPath, type);
+        public readonly IDataMapper dataMapperG = new FireDataMapper(typeof(Grupo), ProjectId, CollectionG, CredentialsPath, type);
+        public readonly IDataMapper dataMapperCo = new FireDataMapper(typeof(Colono), ProjectId, CollectionCo, CredentialsPath, type);
+        public readonly IDataMapper dataMapperM = new FireDataMapper(typeof(Monitor), ProjectId, CollectionM, CredentialsPath, type);
 
         public void Dispose()
         {

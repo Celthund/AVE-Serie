@@ -14,6 +14,8 @@ namespace FireMapper
         string Collection;
         //IDatasource
         IDataSource dataSource;
+        // Type that defines the dataSource to be used.
+        Type dataSourceType;
         //Credentials .json path
         string CredentialsPath;
         //Project Id
@@ -26,8 +28,9 @@ namespace FireMapper
         /*
         Constructor
         */
-        public FireDataMapper(Type objType, string ProjectId, string Collection, string CredentialsPath)
-        {
+        public FireDataMapper(Type objType, string ProjectId, string Collection, string CredentialsPath, Type dataSourceType)
+        {   
+            this.dataSourceType = dataSourceType;
             this.objType = objType;
             this.Collection = Collection;
             this.CredentialsPath = CredentialsPath;
@@ -160,7 +163,10 @@ namespace FireMapper
                 if (p.IsDefined(typeof(FireKey)))
                 {
                     //New FireDataSource instance
-                    dataSource = new FireDataSource(ProjectId, Collection, p.Name, CredentialsPath);
+                    //dataSource = new WeakDataSource(ProjectId, Collection, p.Name, CredentialsPath);
+                    // Creates an instance of type of dataSourceType and casts it as IDataSource
+                    object[] args = {ProjectId, Collection, p.Name, CredentialsPath};
+                    dataSource = (IDataSource) Activator.CreateInstance(dataSourceType, args);
                     break;
                 }
             }
@@ -186,7 +192,7 @@ namespace FireMapper
                             p.PropertyType,
                             ProjectId,
                             ((FireCollection)p.PropertyType.GetCustomAttributes(typeof(FireCollection), false).GetValue(0)).collection, // Value of colletion propriety of Record.
-                            CredentialsPath);
+                            CredentialsPath, dataSourceType);
                         //Adds the new FireMapper to the collections list
                         collections[p.PropertyType] = db;
                     }
