@@ -21,22 +21,20 @@ namespace FireMapper
         //Project Id
         string ProjectId;
         //Stores the collection properties
-        List<PropertyInfo> properties;
-        //Stores collections related to the current
-        Dictionary<Type, IDataMapper> collections = new Dictionary<Type, IDataMapper>();
+        List<IGetter> properties;
         
+
         /*
         Constructor
         */
         public FireDataMapper(Type objType, string ProjectId, string Collection, string CredentialsPath, Type dataSourceType)
-        {   
+        {
             this.dataSourceType = dataSourceType;
             this.objType = objType;
             this.Collection = Collection;
             this.CredentialsPath = CredentialsPath;
             this.ProjectId = ProjectId;
             setProperties();
-            setDataSource();
         }
 
         /*
@@ -46,35 +44,13 @@ namespace FireMapper
         {
             Dictionary<string, object> dictionary = new Dictionary<string, object>();
             //Iterates over the properties list
-            foreach (PropertyInfo p in properties)
+            foreach (IGetter p in properties)
             {
-                //Checks if the property is linked to another collection and is value is not null
-                if (collections != null && collections.ContainsKey(p.PropertyType) && p.GetValue(obj) != null)
-                {
-                    //Iterates over the collection object properties of the linked collection
-                    foreach (PropertyInfo item in p.PropertyType.GetProperties())
-                    {
-                        //Checks if the property is a key
-                        if (item.IsDefined(typeof(FireKey)))
-                        {
-                            object propertyObj = p.GetValue(obj, null);
-                            //Key value from the linked collection
-                            object key = collections[p.PropertyType].GetById(item.GetValue(propertyObj, null));
-                            //Checks if the key exists in the linked collection
-                            if (key != null)
-                            //Adds property name and value to the dictionary
-                                dictionary.Add(p.Name, item.GetValue(propertyObj, null));
-                            else return;
-                        }
-                    }
-                }
-                else
-                {
-                    //Adds property name and value to the dictionary
-                    dictionary.Add(p.Name, p.GetValue(obj, null));
-                }
+
+                dictionary = p.FillDictionary(dictionary, obj);
+
             }
-            //Adds the dictionary value to the DB
+            //Updates DB with new value
             dataSource.Add(dictionary);
         }
 
@@ -120,56 +96,21 @@ namespace FireMapper
         {
             Dictionary<string, object> dictionary = new Dictionary<string, object>();
             //Iterates over the properties list
-            foreach (PropertyInfo p in properties)
-            { 
-                //Checks if the property is linked to another collection and is value is not null
-                if (collections != null && collections.ContainsKey(p.PropertyType) && p.GetValue(obj) != null)
-                {
-                    //Iterates over the collection object properties of the linked collection
-                    foreach (PropertyInfo item in p.PropertyType.GetProperties())
-                    {
-                        //Checks if the property is a key
-                        if (item.IsDefined(typeof(FireKey)))
-                        {
-                            object propertyObj = p.GetValue(obj, null);
-                            //Key value from the linked collection
-                            object key = collections[p.PropertyType].GetById(item.GetValue(propertyObj, null));
-                            //Checks if the key exists in the linked collection
-                            if (key != null)
-                                //Adds property name and value to the dictionary
-                                dictionary.Add(p.Name, item.GetValue(propertyObj, null));
-                        }
-                    }
-                }
-                else
-                {
-                    //Adds property name and value to the dictionary
-                    dictionary.Add(p.Name, p.GetValue(obj, null));
-                }
+            foreach (IGetter p in properties)
+            {
+                dictionary = p.FillDictionary(dictionary, obj);
             }
             //Updates DB with new value
             dataSource.Update(dictionary);
         }
-
         /*
         Defines dataSource
         */
-        void setDataSource()
+        void setDataSource(PropertyInfo p)
         {
             //Iterates over the object properties
-            foreach (PropertyInfo p in properties)
-            {
-                //Checks if the property is a key
-                if (p.IsDefined(typeof(FireKey)))
-                {
-                    //New FireDataSource instance
-                    //dataSource = new WeakDataSource(ProjectId, Collection, p.Name, CredentialsPath);
-                    // Creates an instance of type of dataSourceType and casts it as IDataSource
-                    object[] args = {ProjectId, Collection, p.Name, CredentialsPath};
-                    dataSource = (IDataSource) Activator.CreateInstance(dataSourceType, args);
-                    break;
-                }
-            }
+            object[] args = { ProjectId, Collection, p.Name, CredentialsPath };
+            dataSource = (IDataSource)Activator.CreateInstance(dataSourceType, args);
         }
 
         /*
@@ -177,13 +118,19 @@ namespace FireMapper
         */
         void setProperties()
         {
-            List<PropertyInfo> properties = new List<PropertyInfo>();
+            List<IGetter> properties = new List<IGetter>();
             //Iterates over the object properties
             foreach (PropertyInfo p in objType.GetProperties())
             {
+
                 //Checks that the property is not ignored
                 if (!p.IsDefined(typeof(FireIgnore)))
                 {
+                    if (p.IsDefined(typeof(FireKey)))
+                    {
+                        setDataSource(p);
+                    }
+                    IGetter property;
                     //Checks if the property is a collection
                     if (p.PropertyType.IsDefined(typeof(FireCollection)))
                     {
@@ -191,13 +138,16 @@ namespace FireMapper
                         IDataMapper db = new FireDataMapper(
                             p.PropertyType,
                             ProjectId,
-                            ((FireCollection)p.PropertyType.GetCustomAttributes(typeof(FireCollection), false).GetValue(0)).collection, // Value of colletion propriety of Record.
+                            ((FireCollection)p.PropertyType.GetCustomAttributes(typeof(FireCollection), false).GetValue(0)).collection, // Value of collection propriety of Record.
                             CredentialsPath, dataSourceType);
-                        //Adds the new FireMapper to the collections list
-                        collections[p.PropertyType] = db;
+                        property = new ComplexPropertyGetter(p, db);
+                    }
+                    else
+                    {
+                        property = new SimplePropertyGetter(p);
                     }
                     //Adds property to properties list
-                    properties.Add(p);
+                    properties.Add(property);
                 }
             }
             //Defines properties list
@@ -216,29 +166,17 @@ namespace FireMapper
             object[] newObjProperties = new object[properties.Count];
             int i = 0;
             //Iterates over the properties list
-            foreach (PropertyInfo p in properties)
+            foreach (IGetter p in properties)
             {
-                //Checks if dictionary a property
-                if (dictionary.ContainsKey(p.Name))
+                if (dictionary.ContainsKey(p.GetName()))
                 {
-                    //Checks whether the property is of the primitive type or is not a collection
-                    if (p.PropertyType.IsPrimitive || !collections.ContainsKey(p.PropertyType))
-                    {
-                        //Obtains and converts the type of the property value in the dictionary to its original type. (Dictionary stores Int64)
-                        object value = Convert.ChangeType(dictionary[p.Name], p.PropertyType);
-                        //Add constructor argument
-                        newObjProperties[i] = value;
-                    }
-                    else
-                    {
-                        //Adds to the constructor argument array in case the property is a collection ( Recursive call over GetByID )
-                        newObjProperties[i] = collections[p.PropertyType].GetById(dictionary[p.Name]);
-                    }
+                    object o = p.GetValue(dictionary[p.GetName()]);
+                    newObjProperties[i] = p.ChangeType(o);
                 }
                 else
                 {
                     //Adds a new instance or null to the constructor argument array in case a property is not present in properties list (with FireIgnore Attr) 
-                    newObjProperties[i] = p.PropertyType.IsValueType ? Activator.CreateInstance(p.PropertyType) : null;
+                    newObjProperties[i] = p.PropertyType().IsValueType ? Activator.CreateInstance(p.PropertyType()) : null;
                 }
                 i++;
             }
@@ -246,6 +184,10 @@ namespace FireMapper
             object newObj = Activator.CreateInstance(objType, newObjProperties);
             return newObj;
         }
-
+        List<IGetter> IDataMapper.GetPropertiesList()
+        {
+            return properties;
+        }
     }
+
 }
