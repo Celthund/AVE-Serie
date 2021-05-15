@@ -10,11 +10,7 @@ namespace FireMapper
     {
 
         PropertyInfo property;
-
         IDataMapper db;
-
-
-
         public ComplexPropertyGetter(PropertyInfo property, IDataMapper db)
         {
             this.property = property;
@@ -33,11 +29,6 @@ namespace FireMapper
             return db.GetById(obj);
         }
 
-        public object ChangeType(object obj)
-        {
-
-            return Convert.ChangeType(obj, property.PropertyType);
-        }
 
         public Dictionary<string, object> FillDictionary(Dictionary<string, object> dictionary, object obj)
         {

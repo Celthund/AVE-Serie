@@ -47,7 +47,8 @@ namespace FireMapper
             foreach (IGetter p in properties)
             {
 
-                dictionary = p.FillDictionary(dictionary, obj);
+                //dictionary = p.FillDictionary(dictionary, obj);
+                dictionary.Add(p.GetName(),p.GetValue(obj));
 
             }
             //Updates DB with new value
@@ -98,7 +99,8 @@ namespace FireMapper
             //Iterates over the properties list
             foreach (IGetter p in properties)
             {
-                dictionary = p.FillDictionary(dictionary, obj);
+                //dictionary = p.FillDictionary(dictionary, obj);
+                dictionary.Add(p.GetName(),p.GetValue(obj));
             }
             //Updates DB with new value
             dataSource.Update(dictionary);
@@ -171,12 +173,11 @@ namespace FireMapper
                 if (dictionary.ContainsKey(p.GetName()))
                 {
                     object o = p.GetValue(dictionary[p.GetName()]);
-                    newObjProperties[i] = p.ChangeType(o);
                 }
                 else
                 {
                     //Adds a new instance or null to the constructor argument array in case a property is not present in properties list (with FireIgnore Attr) 
-                    newObjProperties[i] = p.PropertyType().IsValueType ? Activator.CreateInstance(p.PropertyType()) : null;
+                    //newObjProperties[i] = p.PropertyType().IsValueType ? Activator.CreateInstance(p.PropertyType()) : null;
                 }
                 i++;
             }

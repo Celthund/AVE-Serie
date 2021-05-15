@@ -1,50 +1,49 @@
 using System.Reflection;
 using System;
 using System.Collections.Generic;
-public class SimplePropertyGetter : IGetter
+namespace FireMapper
 {
 
-    PropertyInfo property;
 
-
-
-    public SimplePropertyGetter(PropertyInfo property)
-    {
-        this.property = property;
-    }
-
-    public string GetName()
-    {
-        return property.Name;
-    }
-
-    public object GetValue(object obj)
-    {
-        if(obj.GetType()== property.PropertyType)
-            return obj;
-
-        return property.GetValue(obj, null);
-    }
-
-    public object ChangeType(object obj)
+    public class SimplePropertyGetter : IGetter
     {
 
-        return Convert.ChangeType(obj, property.PropertyType);
-    }
+        PropertyInfo property;
 
-    public Dictionary<string, object> FillDictionary(Dictionary<string, object> dictionary, object obj)
-    {
-        dictionary.Add(GetName(), GetValue(obj));
-        return dictionary;
-    }
 
-    public bool IsDefined()
-    {
-        return property.IsDefined(typeof(FireKey));
-    }
 
-    public Type PropertyType()
-    {
-        return property.PropertyType;
+        public SimplePropertyGetter(PropertyInfo property)
+        {
+            this.property = property;
+        }
+        public string GetName()
+        {
+            return property.Name;
+        }
+
+
+        public object GetValue(object obj)
+        {
+            //if(obj.GetType()== property.PropertyType)
+            //    return obj;
+
+            return property.GetValue(obj, null);
+        }
+
+        public Dictionary<string, object> FillDictionary(Dictionary<string, object> dictionary, object obj)
+        {
+            dictionary.Add(GetName(), GetValue(obj));
+            return dictionary;
+        }
+
+        public bool IsDefined()
+        {
+            return property.IsDefined(typeof(FireKey));
+        }
+
+        public Type PropertyType()
+        {
+            return property.PropertyType;
+        }
     }
 }
