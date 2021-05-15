@@ -48,7 +48,7 @@ namespace FireMapper
             {
 
                 //dictionary = p.FillDictionary(dictionary, obj);
-                dictionary.Add(p.GetName(),p.GetValue(obj));
+                //dictionary.Add(p.GetName(),p.GetValue(obj));
 
             }
             //Updates DB with new value
@@ -173,6 +173,7 @@ namespace FireMapper
                 if (dictionary.ContainsKey(p.GetName()))
                 {
                     object o = p.GetValue(dictionary[p.GetName()]);
+                    newObjProperties[i]=o;
                 }
                 else
                 {

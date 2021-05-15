@@ -9,8 +9,6 @@ public interface IGetter{
 
     bool IsDefined();
 
-    Type PropertyType();
-
-    Dictionary<string, object> FillDictionary(Dictionary<string, object> dictionary, object obj);
+    //Dictionary<string, object> FillDictionary(Dictionary<string, object> dictionary, object obj);
     
 }

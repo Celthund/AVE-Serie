@@ -33,37 +33,41 @@ namespace FireMapper
             this.Collection = Collection;
             this.CredentialsPath = CredentialsPath;
             this.ProjectId = ProjectId;
-            getterBuilder = new DynamicGetterBuilder( domain);
+            getterBuilder = new DynamicGetterBuilder(domain);
             setProperties();
         }
         void setProperties()
         {
             List<IGetter> properties = new List<IGetter>();
+            
             //Iterates over the object properties
             foreach (PropertyInfo p in domain.GetProperties())
             {
-
+                bool isKey=false;   
                 //Checks that the property is not ignored
                 if (!p.IsDefined(typeof(FireIgnore)))
                 {
                     if (p.IsDefined(typeof(FireKey)))
                     {
                         setDataSource(p);
+                        isKey=true;
+                        
                     }
                     IGetter getter;
-                    
+
                     //Checks if the property is a collection
                     if (p.PropertyType.IsDefined(typeof(FireCollection)))
                     {
                         //New FireDataMapper with the property collection                       
-                        string OtherCollection= ((FireCollection)p.PropertyType.GetCustomAttributes(typeof(FireCollection), false).GetValue(0)).collection;
-                        Type getterType= getterBuilder.GenerateComplexGetter(p, ProjectId, OtherCollection, CredentialsPath, dataSourceType);                       
-                        getter = (IGetter) Activator.CreateInstance(getterType);
+                        string OtherCollection = ((FireCollection)p.PropertyType.GetCustomAttributes(typeof(FireCollection), false).GetValue(0)).collection;
+                        Type getterType = getterBuilder.GenerateComplexGetter(p, ProjectId, OtherCollection, CredentialsPath, dataSourceType);
+                        getter = (IGetter)Activator.CreateInstance(getterType);
                     }
                     else
                     {
-                        Type  getterType = getterBuilder.GenerateSimpleGetter(p);
-                        getter = (IGetter) Activator.CreateInstance(getterType);
+                        Type getterType = getterBuilder.GenerateSimpleGetter(p,isKey);
+                        getter = (IGetter)Activator.CreateInstance(getterType);
+                        
                     }
                     //Adds property to properties list
                     properties.Add(getter);
@@ -86,12 +90,12 @@ namespace FireMapper
             {
 
                 //dictionary = p.FillDictionary(dictionary, obj);
-                dictionary.Add(p.GetName(),p.GetValue(obj));
+                dictionary.Add(p.GetName(), p.GetValue(obj));
 
             }
             //Updates DB with new value
             dataSource.Add(dictionary);
-        
+
         }
 
         public void Delete(object keyValue)
@@ -101,7 +105,16 @@ namespace FireMapper
 
         public IEnumerable GetAll()
         {
-            throw new System.NotImplementedException();
+            //Objects list
+            List<object> objs = new List<object>();
+            object obj;
+            foreach (var item in dataSource.GetAll())
+            {
+                obj = CreateObject(item);
+                if (obj is not null)
+                    objs.Add(obj);
+            }
+            return objs;
         }
 
         object IDataMapper.GetById(object keyValue)
@@ -126,12 +139,14 @@ namespace FireMapper
             //Array with object constructor arguments
             object[] newObjProperties = new object[properties.Count];
             int i = 0;
+
             //Iterates over the properties list
             foreach (IGetter p in properties)
             {
                 if (dictionary.ContainsKey(p.GetName()))
                 {
                     object o = p.GetValue(dictionary[p.GetName()]);
+                    newObjProperties[i]=o;
                 }
                 else
                 {

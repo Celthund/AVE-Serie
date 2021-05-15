@@ -6,31 +6,29 @@ namespace FireMapper
 {
 
 
-    public class ComplexPropertyGetter : IGetter
+    public class ComplexPropertyGetter : AbstractGetter
     {
 
         PropertyInfo property;
-        IDataMapper db;
-        public ComplexPropertyGetter(PropertyInfo property, IDataMapper db)
+        IDataMapper dbc;
+        
+        public ComplexPropertyGetter(PropertyInfo property, IDataMapper dbc) : base(property.Name, dbc)
         {
             this.property = property;
-            this.db = db;
+            this.dbc=dbc;
 
         }
 
-        public string GetName()
-        {
-            return property.Name;
-        }
 
-        public object GetValue(object obj)
+
+        public override object GetValue(object obj)
         {
 
-            return db.GetById(obj);
+            return dbc.GetById(obj);
         }
 
 
-        public Dictionary<string, object> FillDictionary(Dictionary<string, object> dictionary, object obj)
+        public override Dictionary<string, object> FillDictionary(Dictionary<string, object> dictionary, object obj)
         {
             foreach (IGetter p in db.GetPropertiesList())
             {
@@ -44,14 +42,7 @@ namespace FireMapper
             return dictionary;
         }
 
-        public bool IsDefined()
-        {
-            return property.IsDefined(typeof(FireCollection));
-        }
-        public Type PropertyType()
-        {
-            return property.PropertyType;
-        }
+        
 
     }
 }
