@@ -10,11 +10,16 @@ namespace FireMapper
 
         PropertyInfo property;
 
+        bool IsValueType;
+
+        
 
 
-        public SimplePropertyGetter(PropertyInfo property) : base(property.Name)
+
+        public SimplePropertyGetter(PropertyInfo property, bool isKey) : base(property.Name, isKey)
         {
             this.property = property;
+            IsValueType=property.PropertyType.IsValueType;
         }
         
 
@@ -33,8 +38,15 @@ namespace FireMapper
             return dictionary;
         }
 
-        
+        public override object GetDefaultValue()
+        {
+            return IsValueType ? Activator.CreateInstance(property.PropertyType) : null;
+           
+        }
 
-
+        public override object GetKeyValue(object obj)
+        {
+            return GetValue(obj);
+        }
     }
 }

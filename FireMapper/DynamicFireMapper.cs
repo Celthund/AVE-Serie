@@ -58,10 +58,15 @@ namespace FireMapper
                     //Checks if the property is a collection
                     if (p.PropertyType.IsDefined(typeof(FireCollection)))
                     {
+                        IDataMapper db = new DynamicFireMapper(
+                            p.PropertyType,
+                            ProjectId,
+                            ((FireCollection)p.PropertyType.GetCustomAttributes(typeof(FireCollection), false).GetValue(0)).collection, // Value of collection propriety of Record.
+                            CredentialsPath, dataSourceType);
                         //New FireDataMapper with the property collection                       
-                        string OtherCollection = ((FireCollection)p.PropertyType.GetCustomAttributes(typeof(FireCollection), false).GetValue(0)).collection;
-                        Type getterType = getterBuilder.GenerateComplexGetter(p, ProjectId, OtherCollection, CredentialsPath, dataSourceType);
-                        getter = (IGetter)Activator.CreateInstance(getterType);
+                        //string OtherCollection = ((FireCollection)p.PropertyType.GetCustomAttributes(typeof(FireCollection), false).GetValue(0)).collection;
+                        Type getterType = getterBuilder.GenerateComplexGetter(p);
+                        getter = (IGetter)Activator.CreateInstance(getterType, new object[]{p.Name, db});
                     }
                     else
                     {
@@ -90,7 +95,7 @@ namespace FireMapper
             {
 
                 //dictionary = p.FillDictionary(dictionary, obj);
-                dictionary.Add(p.GetName(), p.GetValue(obj));
+                dictionary.Add(p.GetName(), p.GetKeyValue(obj));
 
             }
             //Updates DB with new value
@@ -151,7 +156,7 @@ namespace FireMapper
                 else
                 {
                     //Adds a new instance or null to the constructor argument array in case a property is not present in properties list (with FireIgnore Attr) 
-                    //newObjProperties[i] = p.PropertyType().IsValueType ? Activator.CreateInstance(p.PropertyType()) : null;
+                    newObjProperties[i] = p.GetDefaultValue();
                 }
                 i++;
             }

@@ -10,12 +10,11 @@ namespace FireMapper
     {
 
         PropertyInfo property;
-        IDataMapper dbc;
+       
         
-        public ComplexPropertyGetter(PropertyInfo property, IDataMapper dbc) : base(property.Name, dbc)
+        public ComplexPropertyGetter(PropertyInfo property, IDataMapper db) : base(property.Name, db)
         {
             this.property = property;
-            this.dbc=dbc;
 
         }
 
@@ -24,7 +23,7 @@ namespace FireMapper
         public override object GetValue(object obj)
         {
 
-            return dbc.GetById(obj);
+            return db.GetById(obj);
         }
 
 
@@ -42,7 +41,23 @@ namespace FireMapper
             return dictionary;
         }
 
-        
+        public override object GetDefaultValue()
+        {
+            return null;
+        }
 
+        public override object GetKeyValue(object obj)
+        {
+            foreach (IGetter p in db.GetPropertiesList())
+            {
+                //Checks if the property is a key
+                if (p.IsDefined())
+                {
+                    //Adds property name and value to the dictionary
+                    return p.GetValue(property.GetValue(obj));
+                }
+            }
+            return null;
+        }
     }
 }

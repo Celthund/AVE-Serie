@@ -9,6 +9,10 @@ public interface IGetter{
 
     bool IsDefined();
 
+    object GetKeyValue(object obj);
+
+    object GetDefaultValue();
+
     //Dictionary<string, object> FillDictionary(Dictionary<string, object> dictionary, object obj);
     
 }

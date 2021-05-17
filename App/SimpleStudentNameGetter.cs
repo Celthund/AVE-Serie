@@ -20,6 +20,16 @@ namespace App
             return dictionary;
         }
 
+        public override object GetDefaultValue()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override object GetKeyValue(object obj)
+        {
+            throw new NotImplementedException();
+        }
+
         public override object GetValue(object obj)
         {
             if(obj is Student){

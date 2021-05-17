@@ -46,9 +46,10 @@ namespace FireMapper
             //Iterates over the properties list
             foreach (IGetter p in properties)
             {
-
+                
                 //dictionary = p.FillDictionary(dictionary, obj);
                 //dictionary.Add(p.GetName(),p.GetValue(obj));
+                dictionary.Add(p.GetName(), p.GetKeyValue(obj));
 
             }
             //Updates DB with new value
@@ -128,8 +129,10 @@ namespace FireMapper
                 //Checks that the property is not ignored
                 if (!p.IsDefined(typeof(FireIgnore)))
                 {
+                    bool isKey=false;
                     if (p.IsDefined(typeof(FireKey)))
                     {
+                        isKey =true;
                         setDataSource(p);
                     }
                     IGetter property;
@@ -146,7 +149,7 @@ namespace FireMapper
                     }
                     else
                     {
-                        property = new SimplePropertyGetter(p);
+                        property = new SimplePropertyGetter(p, isKey);
                     }
                     //Adds property to properties list
                     properties.Add(property);

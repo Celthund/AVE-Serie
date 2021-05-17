@@ -4,8 +4,7 @@ using FireMapper;
 using FireSource;
 namespace App
 {
-
-
+    
     public class ComplexClassroomGetter : AbstractGetter
     {
         public ComplexClassroomGetter() : base("classroom", new DynamicFireMapper(typeof(ClassroomInfo),
@@ -30,6 +29,16 @@ namespace App
                 }
             }
             return dictionary;
+        }
+
+        public override object GetDefaultValue()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override object GetKeyValue(object obj)
+        {
+            throw new NotImplementedException();
         }
 
         public override object GetValue(object target)

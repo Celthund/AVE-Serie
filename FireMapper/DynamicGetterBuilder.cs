@@ -21,10 +21,10 @@ namespace FireMapper
             mb = ab.DefineDynamicModule(aName.Name + ".dll");
         }
 
-        // public void SaveModule()
-        // {
-        //     ab.Save(aName.Name + ".dll");
-        // }
+        public void SaveModule()
+        {
+            ab.Save(aName.Name + ".dll");
+        }
 
         public Type GenerateSimpleGetter(PropertyInfo p, bool isKey)
         {
@@ -41,21 +41,20 @@ namespace FireMapper
             return getterType.CreateType();
         }
 
-        public Type GenerateComplexGetter(PropertyInfo p,
-                                                    string ProjectId,
-                                                    string OtherCollection,
-                                                    string CredentialsPath,
-                                                    Type dataSourceType)
+        public Type GenerateComplexGetter(PropertyInfo p)
         {
             // 1. Define the type
             TypeBuilder getterType = mb.DefineType(
                 domain.Name + p.Name + "Getter", TypeAttributes.Public, typeof(AbstractGetter));
 
             // 2. Define the paraneterless constructor
-            BuildComplexConstructor(getterType, p, ProjectId, OtherCollection, CredentialsPath, dataSourceType);
+            BuildComplexConstructor(getterType);
             // 3. Define the method GetValue
             BuildComplexGetValue(getterType, p);
-            //BuildIsDefined(getterType, p);
+            //BuildFillDictionaryComplex(getterType, p);
+            //BuildGetKeyValue();
+            //BuildGetDefaultValue();
+            
             // Finish type
             return getterType.CreateType();
         }
@@ -78,10 +77,12 @@ namespace FireMapper
             //                                                                                                                            !1)
             //   IL_0019:  ldarg.1
             //   IL_001a:  ret
+
+
             ILGenerator il = getValBuilder.GetILGenerator();
             FieldInfo field = typeof(AbstractGetter).GetField("name");
             MethodInfo getFieldMethod = p.GetGetMethod();
-            MethodInfo DicAddMethod = typeof(Dictionary<string, object>).GetMethod("Add",new Type[] { typeof(string), typeof(object) } ) ;
+            MethodInfo DicAddMethod = typeof(Dictionary<string, object>).GetMethod("Add", new Type[] { typeof(string), typeof(object) });
             Label falseLabel = il.DefineLabel();
             il.Emit(OpCodes.Ldarg_2);             // ldarg.1
             il.Emit(OpCodes.Castclass, domain);
@@ -93,6 +94,29 @@ namespace FireMapper
             il.Emit(OpCodes.Callvirt, getFieldMethod);
             il.Emit(OpCodes.Callvirt, DicAddMethod);
             il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Ret);
+        }
+        private void BuildFillDictionaryComplex(TypeBuilder getterType, PropertyInfo p)
+        {
+            MethodBuilder getValBuilder = getterType.DefineMethod(
+                "FillDictionary",
+                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
+                typeof(Dictionary<string, object>),
+                new Type[] { typeof(Dictionary<string, object>), typeof(object) });
+            //   IL_0000:  ldarg.2
+            //   IL_0001:  castclass  App.Student
+            //   IL_0006:  stloc.0
+            //   IL_0007:  ldarg.1
+            //   IL_0008:  ldarg.0
+            //   IL_0009:  ldfld      string [FireMapper]AbstractGetter::name
+            //   IL_000e:  ldloc.0
+            //   IL_000f:  callvirt   instance string App.Student::get_name()
+            //   IL_0014:  callvirt   instance void class [System.Collections]System.Collections.Generic.Dictionary`2<string,object>::Add(!0,
+            //                                                                                                                            !1)
+            //   IL_0019:  ldarg.1
+            //   IL_001a:  ret
+            ILGenerator il = getValBuilder.GetILGenerator();
+           
             il.Emit(OpCodes.Ret);
         }
 
@@ -174,55 +198,44 @@ namespace FireMapper
 
         }
 
-        private void BuildComplexConstructor(TypeBuilder getterType,
-                                                PropertyInfo p,
-                                                string ProjectId,
-                                                string OtherCollection,
-                                                string CredentialsPath,
-                                                Type dataSourceType)
+        private void BuildComplexConstructor(TypeBuilder getterType)
         {
             ConstructorBuilder ctor = getterType.DefineConstructor(
                 MethodAttributes.Public,
-                 CallingConventions.Standard,
-                 Type.EmptyTypes);
-            // <=> new Type[0]
-            //             IL_0000:  ldarg.0
-            //   IL_0001:  ldstr      "classroom"
-            //   IL_0006:  ldtoken    App.ClassroomInfo
-            //   IL_000b:  call       class [System.Runtime]System.Type [System.Runtime]System.Type::GetTypeFromHandle(valuetype [System.Runtime]System.RuntimeTypeHandle)
-            //   IL_0010:  ldstr      "ave-trab1-g02"
-            //   IL_0015:  ldstr      "Classrooms"
-            //   IL_001a:  ldstr      "D:/2Ano/2 semestre/AVE/Trab1/FireMapper/App/Resour"
-            //   + "ces/ave-trab1-g02-firebase-adminsdk-3f705-1ab19a5fb2.json"
-            //   IL_001f:  ldtoken    [FireSource]FireSource.FireDataSource
-            //   IL_0024:  call       class [System.Runtime]System.Type [System.Runtime]System.Type::GetTypeFromHandle(valuetype [System.Runtime]System.RuntimeTypeHandle)
-            //   IL_0029:  newobj     instance void [FireMapper]FireMapper.DynamicFireMapper::.ctor(class [System.Runtime]System.Type,
-            //                                                                                      string,
-            //                                                                                      string,
-            //                                                                                      string,
-            //                                                                                      class [System.Runtime]System.Type)
-            //   IL_002e:  call       instance void [FireMapper]AbstractGetter::.ctor(string,
+                 CallingConventions.Standard, new Type[] { typeof(string) , typeof(IDataMapper) });
+            //  IL_0000:  ldarg.0
+            //   IL_0001:  ldarg.1
+            //   IL_0002:  ldarg.2
+            //   IL_0003:  call       instance void [FireMapper]AbstractGetter::.ctor(string,
             //                                                                        class [FireMapper]FireMapper.IDataMapper)
-            //   IL_0033:  ret
-            MethodInfo getTypeFromhandle = typeof(Type).GetMethod("GetTypeFromHandle");
-
+            //   IL_0008:  ret
             ILGenerator il = ctor.GetILGenerator();
-            il.Emit(OpCodes.Ldarg_0);      // ldarg.0
-            il.Emit(OpCodes.Ldstr, p.Name);// ld property name
-            il.Emit(OpCodes.Ldtoken, p.PropertyType);
-            il.Emit(OpCodes.Call, getTypeFromhandle);
-            il.Emit(OpCodes.Ldstr, ProjectId);
-            il.Emit(OpCodes.Ldstr, OtherCollection);
-            il.Emit(OpCodes.Ldstr, CredentialsPath);
-            il.Emit(OpCodes.Ldtoken, dataSourceType);
-            il.Emit(OpCodes.Call, getTypeFromhandle);
-            il.Emit(OpCodes.Newobj, typeof(DynamicFireMapper).GetConstructor(new Type[] { typeof(Type),
-                                                                                        typeof(string),
-                                                                                        typeof(string),
-                                                                                        typeof(string),
-                                                                                        typeof(Type)}));
-            il.Emit(OpCodes.Call, typeof(AbstractGetter).GetConstructor(new Type[] { typeof(string), typeof(IDataMapper) }));
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Ldarg_2);
+            il.Emit(OpCodes.Call,typeof(AbstractGetter).GetConstructor(new Type[] { typeof(string), typeof(IDataMapper) }));
             il.Emit(OpCodes.Ret);
+             
+            //------------------Another option------------------
+            //MethodInfo getTypeFromhandle = typeof(Type).GetMethod("GetTypeFromHandle");
+
+            // ILGenerator il = ctor.GetILGenerator();
+            // il.Emit(OpCodes.Ldarg_0);      // ldarg.0
+            // il.Emit(OpCodes.Ldstr, p.Name);// ld property name
+            // il.Emit(OpCodes.Ldtoken, p.PropertyType);
+            // il.Emit(OpCodes.Call, getTypeFromhandle);
+            // il.Emit(OpCodes.Ldstr, ProjectId);
+            // il.Emit(OpCodes.Ldstr, OtherCollection);
+            // il.Emit(OpCodes.Ldstr, CredentialsPath);
+            // il.Emit(OpCodes.Ldtoken, dataSourceType);
+            // il.Emit(OpCodes.Call, getTypeFromhandle);
+            // il.Emit(OpCodes.Newobj, typeof(DynamicFireMapper).GetConstructor(new Type[] { typeof(Type),
+            //                                                                             typeof(string),
+            //                                                                             typeof(string),
+            //                                                                             typeof(string),
+            //                                                                             typeof(Type)}));
+            // il.Emit(OpCodes.Call, typeof(AbstractGetter).GetConstructor(new Type[] { typeof(string), typeof(IDataMapper) }));
+            // il.Emit(OpCodes.Ret);
         }
 
     }
