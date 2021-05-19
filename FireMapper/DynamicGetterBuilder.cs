@@ -1,7 +1,6 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Collections.Generic;
 namespace FireMapper
 {
     public class DynamicGetterBuilder
@@ -17,8 +16,8 @@ namespace FireMapper
             aName = new AssemblyName(domain.Name + "Getters");
             ab = AssemblyBuilder.DefineDynamicAssembly(
                      aName,
-                     AssemblyBuilderAccess.RunAndCollect);
-            mb = ab.DefineDynamicModule(aName.Name + ".dll");
+                     AssemblyBuilderAccess.RunAndSave);
+            mb = ab.DefineDynamicModule(aName.Name, aName.Name + ".dll");
         }
 
         public void SaveModule()
@@ -33,12 +32,46 @@ namespace FireMapper
                 domain.Name + p.Name + "Getter", TypeAttributes.Public, typeof(AbstractGetter));
 
             BuildSimpleConstructor(getterType, p, isKey);
-
-
-            BuildGetValue(getterType, p);
-            BuildFillDictionary(getterType, p);
+            BuildSimpleGetValue(getterType, p);
+            BuildSimpleGetKeyValue(getterType);
+            BuildSimpleGetDefaultValue(getterType, p);
             // Finish type
-            return getterType.CreateType();
+            return getterType.CreateType(); 
+        }
+
+        private void BuildSimpleGetDefaultValue(TypeBuilder getterType, PropertyInfo p)
+        {
+            MethodBuilder getValBuilder = getterType.DefineMethod(
+                "GetDefaultValue",
+                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
+                typeof(object),
+                new Type[0]);
+            ILGenerator il = getValBuilder.GetILGenerator();
+            if (p.PropertyType.IsPrimitive) {
+                il.Emit(OpCodes.Ldc_I4_0);
+            }
+            else if (p.PropertyType.IsValueType)
+            {
+                LocalBuilder a = il.DeclareLocal(p.PropertyType);  // declare method of type p
+                il.Emit(OpCodes.Ldloca, a);
+                il.Emit(OpCodes.Initobj, p.PropertyType);
+            }
+            else
+            {
+                il.Emit(OpCodes.Ldnull);
+            }
+            il.Emit(OpCodes.Ret);
+        }
+
+        private void BuildSimpleGetKeyValue(TypeBuilder getterType)
+        {
+            MethodBuilder getValBuilder = getterType.DefineMethod(
+                "GetKeyValue",
+                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
+                typeof(object),
+                new Type[] { typeof(object) });
+            ILGenerator il = getValBuilder.GetILGenerator();
+            il.Emit(OpCodes.Ret);
         }
 
         public Type GenerateComplexGetter(PropertyInfo p)
@@ -51,76 +84,38 @@ namespace FireMapper
             BuildComplexConstructor(getterType);
             // 3. Define the method GetValue
             BuildComplexGetValue(getterType, p);
-            //BuildFillDictionaryComplex(getterType, p);
-            //BuildGetKeyValue();
-            //BuildGetDefaultValue();
-            
+            // 4. Define method GetKeyValue
+            BuildComplexGetKeyValue(getterType);
+            BuildComplexGetDefaultValue(getterType);
+
             // Finish type
-            return getterType.CreateType();
+            return getterType.CreateType(); ;
         }
-        private void BuildFillDictionary(TypeBuilder getterType, PropertyInfo p)
+
+        private void BuildComplexGetDefaultValue(TypeBuilder getterType)
         {
             MethodBuilder getValBuilder = getterType.DefineMethod(
-                "FillDictionary",
+                "GetDefaultValue",
                 MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
-                typeof(Dictionary<string, object>),
-                new Type[] { typeof(Dictionary<string, object>), typeof(object) });
-            //   IL_0000:  ldarg.2
-            //   IL_0001:  castclass  App.Student
-            //   IL_0006:  stloc.0
-            //   IL_0007:  ldarg.1
-            //   IL_0008:  ldarg.0
-            //   IL_0009:  ldfld      string [FireMapper]AbstractGetter::name
-            //   IL_000e:  ldloc.0
-            //   IL_000f:  callvirt   instance string App.Student::get_name()
-            //   IL_0014:  callvirt   instance void class [System.Collections]System.Collections.Generic.Dictionary`2<string,object>::Add(!0,
-            //                                                                                                                            !1)
-            //   IL_0019:  ldarg.1
-            //   IL_001a:  ret
-
-
+                typeof(object),
+                new Type[0]);
             ILGenerator il = getValBuilder.GetILGenerator();
-            FieldInfo field = typeof(AbstractGetter).GetField("name");
-            MethodInfo getFieldMethod = p.GetGetMethod();
-            MethodInfo DicAddMethod = typeof(Dictionary<string, object>).GetMethod("Add", new Type[] { typeof(string), typeof(object) });
-            Label falseLabel = il.DefineLabel();
-            il.Emit(OpCodes.Ldarg_2);             // ldarg.1
-            il.Emit(OpCodes.Castclass, domain);
-            il.Emit(OpCodes.Stloc_0);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldfld, field);
-            il.Emit(OpCodes.Ldloc_0);
-            il.Emit(OpCodes.Callvirt, getFieldMethod);
-            il.Emit(OpCodes.Callvirt, DicAddMethod);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Ret);
-        }
-        private void BuildFillDictionaryComplex(TypeBuilder getterType, PropertyInfo p)
-        {
-            MethodBuilder getValBuilder = getterType.DefineMethod(
-                "FillDictionary",
-                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
-                typeof(Dictionary<string, object>),
-                new Type[] { typeof(Dictionary<string, object>), typeof(object) });
-            //   IL_0000:  ldarg.2
-            //   IL_0001:  castclass  App.Student
-            //   IL_0006:  stloc.0
-            //   IL_0007:  ldarg.1
-            //   IL_0008:  ldarg.0
-            //   IL_0009:  ldfld      string [FireMapper]AbstractGetter::name
-            //   IL_000e:  ldloc.0
-            //   IL_000f:  callvirt   instance string App.Student::get_name()
-            //   IL_0014:  callvirt   instance void class [System.Collections]System.Collections.Generic.Dictionary`2<string,object>::Add(!0,
-            //                                                                                                                            !1)
-            //   IL_0019:  ldarg.1
-            //   IL_001a:  ret
-            ILGenerator il = getValBuilder.GetILGenerator();
-           
+            il.Emit(OpCodes.Ldnull);
             il.Emit(OpCodes.Ret);
         }
 
-        private void BuildGetValue(TypeBuilder getterType, PropertyInfo p)
+        private void BuildComplexGetKeyValue(TypeBuilder getterType)
+        {
+            MethodBuilder getValBuilder = getterType.DefineMethod(
+                "GetKeyValue",
+                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
+                typeof(object),
+                new Type[] { typeof(object) });
+            ILGenerator il = getValBuilder.GetILGenerator();
+            il.Emit(OpCodes.Ret);
+        }
+
+        private void BuildSimpleGetValue(TypeBuilder getterType, PropertyInfo p)
         {
             MethodBuilder getValBuilder = getterType.DefineMethod(
                 "GetValue",
@@ -202,7 +197,7 @@ namespace FireMapper
         {
             ConstructorBuilder ctor = getterType.DefineConstructor(
                 MethodAttributes.Public,
-                 CallingConventions.Standard, new Type[] { typeof(string) , typeof(IDataMapper) });
+                 CallingConventions.Standard, new Type[] { typeof(string), typeof(IDataMapper) });
             //  IL_0000:  ldarg.0
             //   IL_0001:  ldarg.1
             //   IL_0002:  ldarg.2
@@ -213,9 +208,9 @@ namespace FireMapper
             il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldarg_1);
             il.Emit(OpCodes.Ldarg_2);
-            il.Emit(OpCodes.Call,typeof(AbstractGetter).GetConstructor(new Type[] { typeof(string), typeof(IDataMapper) }));
+            il.Emit(OpCodes.Call, typeof(AbstractGetter).GetConstructor(new Type[] { typeof(string), typeof(IDataMapper) }));
             il.Emit(OpCodes.Ret);
-             
+
             //------------------Another option------------------
             //MethodInfo getTypeFromhandle = typeof(Type).GetMethod("GetTypeFromHandle");
 

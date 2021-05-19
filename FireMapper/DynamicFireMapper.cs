@@ -72,13 +72,13 @@ namespace FireMapper
                     {
                         Type getterType = getterBuilder.GenerateSimpleGetter(p,isKey);
                         getter = (IGetter)Activator.CreateInstance(getterType);
-                        
                     }
                     //Adds property to properties list
                     properties.Add(getter);
                 }
             }
             //Defines properties list
+            getterBuilder.SaveModule();
             this.properties = properties;
         }
         void setDataSource(PropertyInfo p)
@@ -94,7 +94,6 @@ namespace FireMapper
             foreach (IGetter p in properties)
             {
 
-                //dictionary = p.FillDictionary(dictionary, obj);
                 dictionary.Add(p.GetName(), p.GetKeyValue(obj));
 
             }

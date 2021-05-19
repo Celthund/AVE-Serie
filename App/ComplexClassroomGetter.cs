@@ -16,21 +16,6 @@ namespace App
 
         }
 
-        public override Dictionary<string, object> FillDictionary(Dictionary<string, object> dictionary, object obj)
-        {
-            ClassroomInfo c = (ClassroomInfo)obj;
-            foreach (IGetter p in db.GetPropertiesList())
-            {
-                //Checks if the property is a key
-                if (p.IsDefined())
-                {
-                    //Adds property name and value to the dictionary
-                    dictionary.Add(name, p.GetValue(c.token));
-                }
-            }
-            return dictionary;
-        }
-
         public override object GetDefaultValue()
         {
             throw new NotImplementedException();

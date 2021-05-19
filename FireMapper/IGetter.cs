@@ -13,6 +13,5 @@ public interface IGetter{
 
     object GetDefaultValue();
 
-    //Dictionary<string, object> FillDictionary(Dictionary<string, object> dictionary, object obj);
     
 }

@@ -24,8 +24,6 @@ public abstract class AbstractGetter : IGetter
     }
 
 
-    public abstract Dictionary<string, object> FillDictionary(Dictionary<string, object> dictionary, object obj);
-
     public abstract object GetDefaultValue();
 
     public abstract object GetKeyValue(object obj);

@@ -47,7 +47,6 @@ namespace FireMapper
             foreach (IGetter p in properties)
             {
                 
-                //dictionary = p.FillDictionary(dictionary, obj);
                 //dictionary.Add(p.GetName(),p.GetValue(obj));
                 dictionary.Add(p.GetName(), p.GetKeyValue(obj));
 
@@ -100,7 +99,6 @@ namespace FireMapper
             //Iterates over the properties list
             foreach (IGetter p in properties)
             {
-                //dictionary = p.FillDictionary(dictionary, obj);
                 dictionary.Add(p.GetName(),p.GetValue(obj));
             }
             //Updates DB with new value

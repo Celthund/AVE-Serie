@@ -11,15 +11,6 @@ namespace App
         {
         }
 
-
-
-        public override Dictionary<string, object> FillDictionary(Dictionary<string, object> dictionary, object obj)
-        {
-            Student st = (Student)obj;
-            dictionary.Add(name, st.name);
-            return dictionary;
-        }
-
         public override object GetDefaultValue()
         {
             throw new NotImplementedException();
