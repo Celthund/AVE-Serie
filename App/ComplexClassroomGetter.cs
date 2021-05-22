@@ -23,7 +23,10 @@ namespace App
 
         public override object GetKeyValue(object obj)
         {
-            throw new NotImplementedException();
+            
+            IGetter getter= db.GetFireKey();
+            
+            return getter.GetValue(((Student)obj).classroom);
         }
 
         public override object GetValue(object target)

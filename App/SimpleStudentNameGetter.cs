@@ -7,7 +7,7 @@ namespace App
 
     public class SimpleStudentNameGetter : AbstractGetter
     {
-        public SimpleStudentNameGetter() : base("name", false)
+        public SimpleStudentNameGetter() : base("name")
         {
         }
 
@@ -18,7 +18,7 @@ namespace App
 
         public override object GetKeyValue(object obj)
         {
-            throw new NotImplementedException();
+           return GetValue(obj);
         }
 
         public override object GetValue(object obj)

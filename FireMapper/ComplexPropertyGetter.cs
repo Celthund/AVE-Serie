@@ -22,7 +22,7 @@ namespace FireMapper
 
         public override object GetValue(object obj)
         {
-
+            
             return db.GetById(obj);
         }
 
@@ -34,16 +34,8 @@ namespace FireMapper
 
         public override object GetKeyValue(object obj)
         {
-            foreach (IGetter p in db.GetPropertiesList())
-            {
-                //Checks if the property is a key
-                if (p.IsDefined())
-                {
+            return db.GetFireKey().GetValue(property.GetValue(obj));
                     //Adds property name and value to the dictionary
-                    return p.GetValue(property.GetValue(obj));
-                }
-            }
-            return null;
         }
     }
 }

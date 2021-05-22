@@ -12,7 +12,7 @@ namespace FireMapper
 
         bool IsValueType;
 
-        public SimplePropertyGetter(PropertyInfo property, bool isKey) : base(property.Name, isKey)
+        public SimplePropertyGetter(PropertyInfo property) : base(property.Name)
         {
             this.property = property;
             IsValueType = property.PropertyType.IsValueType;

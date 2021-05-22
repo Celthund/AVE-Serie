@@ -22,6 +22,8 @@ namespace FireMapper
         string ProjectId;
         //Stores the collection properties
         List<IGetter> properties;
+
+        IGetter FireKey;
         
 
         /*
@@ -133,7 +135,7 @@ namespace FireMapper
                         isKey =true;
                         setDataSource(p);
                     }
-                    IGetter property;
+                    IGetter getter;
                     //Checks if the property is a collection
                     if (p.PropertyType.IsDefined(typeof(FireCollection)))
                     {
@@ -143,14 +145,17 @@ namespace FireMapper
                             ProjectId,
                             ((FireCollection)p.PropertyType.GetCustomAttributes(typeof(FireCollection), false).GetValue(0)).collection, // Value of collection propriety of Record.
                             CredentialsPath, dataSourceType);
-                        property = new ComplexPropertyGetter(p, db);
+                        getter = new ComplexPropertyGetter(p, db);
                     }
                     else
                     {
-                        property = new SimplePropertyGetter(p, isKey);
+                        getter = new SimplePropertyGetter(p);
+                        if(isKey)
+                            FireKey=getter;
+                        
                     }
                     //Adds property to properties list
-                    properties.Add(property);
+                    properties.Add(getter);
                 }
             }
             //Defines properties list
@@ -190,6 +195,11 @@ namespace FireMapper
         List<IGetter> IDataMapper.GetPropertiesList()
         {
             return properties;
+        }
+
+        public IGetter GetFireKey()
+        {
+            return FireKey;
         }
     }
 

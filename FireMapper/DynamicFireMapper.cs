@@ -23,6 +23,7 @@ namespace FireMapper
         //Stores the collection properties
         List<IGetter> properties;
         DynamicGetterBuilder getterBuilder;
+        IGetter FireKey;
         /*
         Constructor
         */
@@ -70,8 +71,10 @@ namespace FireMapper
                     }
                     else
                     {
-                        Type getterType = getterBuilder.GenerateSimpleGetter(p,isKey);
+                        Type getterType = getterBuilder.GenerateSimpleGetter(p);
                         getter = (IGetter)Activator.CreateInstance(getterType);
+                        if(isKey)
+                            FireKey=getter;
                     }
                     //Adds property to properties list
                     properties.Add(getter);
@@ -104,7 +107,7 @@ namespace FireMapper
 
         public void Delete(object keyValue)
         {
-            throw new System.NotImplementedException();
+            dataSource.Delete(keyValue);
         }
 
         public IEnumerable GetAll()
@@ -133,9 +136,16 @@ namespace FireMapper
             return properties;
         }
 
-        public void Update(object obj)
+         void IDataMapper.Update(object obj)
         {
-            throw new System.NotImplementedException();
+            Dictionary<string, object> dictionary = new Dictionary<string, object>();
+            //Iterates over the properties list
+            foreach (IGetter p in properties)
+            {
+                dictionary.Add(p.GetName(),p.GetValue(obj));
+            }
+            //Updates DB with new value
+            dataSource.Update(dictionary);
         }
         object CreateObject(Dictionary<string, object> dictionary)
         {
@@ -162,6 +172,11 @@ namespace FireMapper
             //New object instance
             object newObj = Activator.CreateInstance(domain, newObjProperties);
             return newObj;
+        }
+
+        IGetter IDataMapper.GetFireKey()
+        {
+            return FireKey;
         }
     }
 }

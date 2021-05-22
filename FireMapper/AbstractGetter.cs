@@ -6,8 +6,6 @@ public abstract class AbstractGetter : IGetter
     public string name;
     public IDataMapper db;
 
-    public bool isKey;
-
     public AbstractGetter(string name)
     {
         this.name = name;
@@ -16,11 +14,6 @@ public abstract class AbstractGetter : IGetter
     {
         this.db = db;
         this.name = name;
-    }
-    public AbstractGetter(string name, bool isKey)
-    {
-        this.name = name;
-        this.isKey = isKey;
     }
 
 
@@ -34,13 +27,5 @@ public abstract class AbstractGetter : IGetter
     }
 
     public abstract object GetValue(object target);
-
-    public  bool IsDefined()
-    {
-        return isKey;
-    }
-
-
-
 
 }

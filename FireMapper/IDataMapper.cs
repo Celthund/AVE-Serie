@@ -10,6 +10,8 @@ namespace FireMapper
         void Update(object obj);
         void Delete(object keyValue);
 
+        IGetter GetFireKey();
+
         List<IGetter> GetPropertiesList();
     }
     
