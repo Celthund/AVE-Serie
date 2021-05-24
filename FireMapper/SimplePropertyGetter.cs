@@ -20,6 +20,7 @@ namespace FireMapper
 
         public override object GetValue(object obj)
         {
+            if (obj == null) return obj;
             if (obj.GetType() == property.PropertyType)
                 return obj;
 
