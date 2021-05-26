@@ -10,7 +10,7 @@ namespace FireMapper
         private readonly Type domain;
         private readonly AssemblyName aName;
 
-        public DynamicGetterBuilder(Type domain)
+        public  DynamicGetterBuilder(Type domain)
         {
             this.domain = domain;
             aName = new AssemblyName(domain.Name + "Getters");
@@ -95,6 +95,7 @@ namespace FireMapper
             BuildComplexGetValue(getterType, p);
             // 4. Define method GetKeyValue
             BuildComplexGetKeyValue(getterType, p);
+            // 5. Define method GetDefaultValue
             BuildComplexGetDefaultValue(getterType);
 
             // Finish type
@@ -160,7 +161,6 @@ namespace FireMapper
             il.Emit(OpCodes.Ldarg_1);
             il.Emit(OpCodes.Castclass, domain);   // castclass  Student
             il.Emit(OpCodes.Callvirt, getFieldMethod);
-            il.Emit(OpCodes.Box, getFieldMethod.ReturnType);
             // get_field --> number, name , classroom
             if (getFieldMethod.ReturnType.IsPrimitive)
             {
