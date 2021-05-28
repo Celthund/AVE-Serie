@@ -136,7 +136,7 @@ namespace FireMapper{
                 if (dictionary.ContainsKey(p.GetName()))
                 {
                     object o = p.GetValue(dictionary[p.GetName()]);
-                    newObjProperties[i]=o;
+                    newObjProperties[i] = o ;
                 }
                 else
                 {

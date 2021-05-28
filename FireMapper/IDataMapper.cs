@@ -9,11 +9,7 @@ namespace FireMapper
         void Add(object obj);
         void Update(object obj);
         void Delete(object keyValue);
-
         IGetter GetFireKey();
-
         List<IGetter> GetPropertiesList();
     }
-    
-    
 }

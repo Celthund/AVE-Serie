@@ -71,10 +71,6 @@ namespace FireMapper
                 MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                 typeof(object),
                 new Type[] { typeof(object) });
-            //   IL_0000:  ldarg.0
-            //   IL_0001:  ldarg.1
-            //   IL_0002:  callvirt   instance object [FireMapper]AbstractGetter::GetValue(object)
-            //   IL_0007:  ret
             MethodInfo getValue = typeof(AbstractGetter).GetMethod("GetValue");
             ILGenerator il = getValBuilder.GetILGenerator();
             il.Emit(OpCodes.Ldarg_0);
@@ -121,14 +117,6 @@ namespace FireMapper
                 MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                 typeof(object),
                 new Type[] { typeof(object) });
-            //   IL_0000:  ldarg.0
-            //   IL_0001:  ldfld      class [FireMapper]FireMapper.IDataMapper [FireMapper]AbstractGetter::db
-            //   IL_0006:  callvirt   instance class [FireMapper]IGetter [FireMapper]FireMapper.IDataMapper::GetFireKey()
-            //   IL_000b:  ldarg.1
-            //   IL_000c:  castclass  App.Student
-            //   IL_0011:  callvirt   instance class App.ClassroomInfo App.Student::get_classroom()
-            //   IL_0016:  callvirt   instance object [FireMapper]IGetter::GetValue(object)
-            //   IL_001b:  ret
             FieldInfo field = typeof(AbstractGetter).GetField("db");
             MethodInfo GetFireKeyMethod = field.FieldType.GetMethod("GetFireKey", new Type[0]);
             MethodInfo getFieldMethod = domain.GetMethod("get_" + p.Name);
@@ -141,6 +129,9 @@ namespace FireMapper
             il.Emit(OpCodes.Castclass, domain);
             il.Emit(OpCodes.Callvirt, getFieldMethod);
             il.Emit(OpCodes.Callvirt, getValue);
+            if (p.PropertyType.IsPrimitive){
+                il.Emit(OpCodes.Box, p.PropertyType );
+            }
             il.Emit(OpCodes.Ret);
         }
 
@@ -155,23 +146,27 @@ namespace FireMapper
             ILGenerator il = getValBuilder.GetILGenerator();
             MethodInfo getFieldMethod = p.GetGetMethod();
             Label falseLabel = il.DefineLabel();
-            il.Emit(OpCodes.Ldarg_1);             // ldarg.1
+            il.Emit(OpCodes.Ldarg_1);             
             il.Emit(OpCodes.Isinst, domain);
             il.Emit(OpCodes.Brfalse, falseLabel);
             il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Castclass, domain);   // castclass  Student
+            il.Emit(OpCodes.Castclass, domain);   
             il.Emit(OpCodes.Callvirt, getFieldMethod);
-            // get_field --> number, name , classroom
-            if (getFieldMethod.ReturnType.IsPrimitive)
+            if (getFieldMethod.ReturnType.IsValueType)
             {
                 il.Emit(OpCodes.Box, getFieldMethod.ReturnType);
             }
-            il.Emit(OpCodes.Ret);                 // ret
+            il.Emit(OpCodes.Ret);                
             il.MarkLabel(falseLabel);
             il.Emit(OpCodes.Ldarg_1);
+            if (getFieldMethod.ReturnType.IsValueType) {
+                MethodInfo changeType = typeof(Convert).GetMethod("ChangeType",
+                                        new Type[] { typeof(object),typeof(Type) });
+                il.Emit(OpCodes.Ldtoken,p.PropertyType);
+                il.Emit(OpCodes.Call, changeType);
+            }
             il.Emit(OpCodes.Ret);
         }
-
 
         private void BuildSimpleConstructor(TypeBuilder getterType, PropertyInfo p)
         {
@@ -181,14 +176,10 @@ namespace FireMapper
                  Type.EmptyTypes); // <=> new Type[0]
 
             ILGenerator il = ctor.GetILGenerator();
-            // IL_0000: ldarg.0
-            // IL_0001: ldstr      "name"
-            // IL_0006: call instance void [FireMapper]AbstractGetter::.ctor(string)
-            // IL_000b: ret
             il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldstr, p.Name);
             il.Emit(
-                OpCodes.Call,              // call AbstractGetter::.ctor(string)
+                OpCodes.Call,              
                 typeof(AbstractGetter).GetConstructor(new Type[] { typeof(string)}));
             il.Emit(OpCodes.Ret);
         }
@@ -204,16 +195,11 @@ namespace FireMapper
             FieldInfo field = typeof(AbstractGetter).GetField("db");
             ILGenerator il = getValBuilder.GetILGenerator();
             MethodInfo GetByIdMethod = field.FieldType.GetMethod("GetById", new Type[] { typeof(object) });
-            il.Emit(OpCodes.Ldarg_0);             // ldarg.0
-            il.Emit(OpCodes.Ldfld, field);   // load field db
+            il.Emit(OpCodes.Ldarg_0);            
+            il.Emit(OpCodes.Ldfld, field);   
             il.Emit(OpCodes.Ldarg_1);
             il.Emit(OpCodes.Callvirt, GetByIdMethod);
-            // get_field --> number, name , classroom
-            // if (GetByIdMethod.ReturnType.IsPrimitive)
-            // {
-            //     il.Emit(OpCodes.Box, GetByIdMethod.ReturnType);
-            // }
-            il.Emit(OpCodes.Ret);                 // ret
+            il.Emit(OpCodes.Ret);                 
 
         }
 
@@ -222,41 +208,12 @@ namespace FireMapper
             ConstructorBuilder ctor = getterType.DefineConstructor(
                 MethodAttributes.Public,
                  CallingConventions.Standard, new Type[] { typeof(string), typeof(IDataMapper) });
-            //  IL_0000:  ldarg.0
-            //   IL_0001:  ldarg.1
-            //   IL_0002:  ldarg.2
-            //   IL_0003:  call       instance void [FireMapper]AbstractGetter::.ctor(string,
-            //                                                                        class [FireMapper]FireMapper.IDataMapper)
-            //   IL_0008:  ret
             ILGenerator il = ctor.GetILGenerator();
             il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldarg_1);
             il.Emit(OpCodes.Ldarg_2);
             il.Emit(OpCodes.Call, typeof(AbstractGetter).GetConstructor(new Type[] { typeof(string), typeof(IDataMapper) }));
             il.Emit(OpCodes.Ret);
-
-            //------------------Another option------------------
-            //MethodInfo getTypeFromhandle = typeof(Type).GetMethod("GetTypeFromHandle");
-
-            // ILGenerator il = ctor.GetILGenerator();
-            // il.Emit(OpCodes.Ldarg_0);      // ldarg.0
-            // il.Emit(OpCodes.Ldstr, p.Name);// ld property name
-            // il.Emit(OpCodes.Ldtoken, p.PropertyType);
-            // il.Emit(OpCodes.Call, getTypeFromhandle);
-            // il.Emit(OpCodes.Ldstr, ProjectId);
-            // il.Emit(OpCodes.Ldstr, OtherCollection);
-            // il.Emit(OpCodes.Ldstr, CredentialsPath);
-            // il.Emit(OpCodes.Ldtoken, dataSourceType);
-            // il.Emit(OpCodes.Call, getTypeFromhandle);
-            // il.Emit(OpCodes.Newobj, typeof(DynamicFireMapper).GetConstructor(new Type[] { typeof(Type),
-            //                                                                             typeof(string),
-            //                                                                             typeof(string),
-            //                                                                             typeof(string),
-            //                                                                             typeof(Type)}));
-            // il.Emit(OpCodes.Call, typeof(AbstractGetter).GetConstructor(new Type[] { typeof(string), typeof(IDataMapper) }));
-            // il.Emit(OpCodes.Ret);
         }
-
     }
-
 }

@@ -21,8 +21,8 @@ namespace FireMapper
         public override object GetValue(object obj)
         {
             if (obj == null) return obj;
-            if (obj.GetType() == property.PropertyType)
-                return obj;
+            if (obj.GetType() == property.PropertyType || obj.GetType().IsValueType)
+                return Convert.ChangeType(obj,property.PropertyType);
 
             return property.GetValue(obj, null);
         }
