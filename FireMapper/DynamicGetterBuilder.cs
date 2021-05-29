@@ -162,8 +162,13 @@ namespace FireMapper
             if (getFieldMethod.ReturnType.IsValueType) {
                 MethodInfo changeType = typeof(Convert).GetMethod("ChangeType",
                                         new Type[] { typeof(object), typeof(Type) });
+                Label sameType = il.DefineLabel();
+                il.Emit(OpCodes.Ldarg_1);
+                il.Emit(OpCodes.Isinst, p.PropertyType);
+                il.Emit(OpCodes.Brtrue, sameType);
                 il.Emit(OpCodes.Ldtoken, p.PropertyType);
                 il.Emit(OpCodes.Call, changeType);
+                il.MarkLabel(sameType);
             }
             il.Emit(OpCodes.Ret);
         }
