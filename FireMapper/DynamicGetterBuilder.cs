@@ -10,7 +10,7 @@ namespace FireMapper
         private readonly Type domain;
         private readonly AssemblyName aName;
 
-        public  DynamicGetterBuilder(Type domain)
+        public DynamicGetterBuilder(Type domain)
         {
             this.domain = domain;
             aName = new AssemblyName(domain.Name + "Getters");
@@ -120,7 +120,7 @@ namespace FireMapper
             FieldInfo field = typeof(AbstractGetter).GetField("db");
             MethodInfo GetFireKeyMethod = field.FieldType.GetMethod("GetFireKey", new Type[0]);
             MethodInfo getFieldMethod = domain.GetMethod("get_" + p.Name);
-            MethodInfo getValue = typeof(AbstractGetter).GetMethod("GetValue");
+            MethodInfo getValue = typeof(IGetter).GetMethod("GetValue");
             ILGenerator il = getValBuilder.GetILGenerator();
             il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldfld, field);
@@ -161,8 +161,8 @@ namespace FireMapper
             il.Emit(OpCodes.Ldarg_1);
             if (getFieldMethod.ReturnType.IsValueType) {
                 MethodInfo changeType = typeof(Convert).GetMethod("ChangeType",
-                                        new Type[] { typeof(object),typeof(Type) });
-                il.Emit(OpCodes.Ldtoken,p.PropertyType);
+                                        new Type[] { typeof(object), typeof(Type) });
+                il.Emit(OpCodes.Ldtoken, p.PropertyType);
                 il.Emit(OpCodes.Call, changeType);
             }
             il.Emit(OpCodes.Ret);
