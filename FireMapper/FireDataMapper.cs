@@ -28,7 +28,7 @@ namespace FireMapper
                 if (!p.IsDefined(typeof(FireIgnore)))
                 {
                     bool isKey = false;
-                    if (p.IsDefined(typeof(FireKey)))
+                    if (p.IsDefined(typeof(FireKey)) && FireKey == null )
                     {
                         isKey = true;
                         setDataSource(p);
@@ -47,11 +47,10 @@ namespace FireMapper
                     }
                     else
                     {
-                        getter = new SimplePropertyGetter(p);
-                        if(isKey)
-                            FireKey = getter;
-                        
+                        getter = new SimplePropertyGetter(p);                       
                     }
+                    if(isKey && FireKey == null)
+                            FireKey = getter;
                     //Adds property to properties list
                     properties.Add(getter);
                 }

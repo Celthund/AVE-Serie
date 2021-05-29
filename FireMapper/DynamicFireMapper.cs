@@ -32,7 +32,7 @@ namespace FireMapper
                 //Checks that the property is not ignored
                 if (!p.IsDefined(typeof(FireIgnore)))
                 {
-                    if (p.IsDefined(typeof(FireKey)))
+                    if (p.IsDefined(typeof(FireKey)) && FireKey == null )
                     {
                         setDataSource(p);
                         isKey = true;
@@ -58,9 +58,10 @@ namespace FireMapper
                     {
                         Type getterType = getterBuilder.GenerateSimpleGetter(p);
                         getter = (IGetter)Activator.CreateInstance(getterType);
-                        if(isKey)
-                            FireKey = getter;
+                    
                     }
+                    if(isKey)
+                        FireKey = getter;  
                     //Adds property to properties list
                     properties.Add(getter);
                 }
