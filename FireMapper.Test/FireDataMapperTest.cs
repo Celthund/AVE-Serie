@@ -62,6 +62,12 @@ namespace FireMapper.Test
         }
 
         [Fact]
+        public void GetIvalidColono() {
+            Colono colono = (Colono)colonosDb.GetById(500);
+            Assert.Null(colono);
+        }
+
+        [Fact]
         public void AddGetAndDeleteAndGetAgain()
         {
             ///
