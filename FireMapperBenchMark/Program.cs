@@ -29,24 +29,19 @@ namespace FireMapperBenchMark
         static readonly AbstractDataMapper FireMapperMonitoresDb;
         static void Main(string[] args)
         {
-            //NBench.Bench(BenchAddReflectColono,BenchDeleteReflectColono);
-            //NBench.Bench(BenchAddDynamicColono, BenchDeleteDynamicColono);
-            // //---------------------------------------------------------//
+            //Delete and Add
+            NBench.Bench(BenchDeleteAndAddReflectColono);
+            NBench.Bench(BenchDeleteAndAddDynamicColono);
+            //Get by Id
+            NBench.Bench(BenchGetByIdReflectColono);
+            NBench.Bench(BenchGetByIdDynamicColono);
+            //Get All
+            NBench.Bench(BenchGetAllReflectColonos);
+            NBench.Bench(BenchGetAllDynamicColonos);
+            //Update
+            NBench.Bench(BenchUpdateReflectColono);
+            NBench.Bench(BenchUpdateDynamicColono);
             
-            // NBench.Bench(BenchGetByIdReflectColono,null);
-            // NBench.Bench(BenchGetByIdDynamicColono,null);
-            
-            // //---------------------------------------------------------//
-            // NBench.Bench(BenchUpdateReflectColono,null);
-            // NBench.Bench(BenchUpdateDynamicColono,null);
-           
-             
-            //  //---------------------------------------------------------//
-            // NBench.Bench(BenchGetAllReflectColonos,null);
-            // NBench.Bench(BenchGetAllDynamicColonos,null);
-             //---------------------------------------------------------//
-            NBench.Bench(BenchDeleteReflectColono,BenchAddReflectColono);
-            NBench.Bench(BenchDeleteDynamicColono, BenchAddDynamicColono);
         }
 
 
@@ -61,21 +56,13 @@ namespace FireMapperBenchMark
             pessoa = new Pessoa(111, "Tiago Ribeiro", "Porto", 929938476, "ribeiro@gmail.com");
             grupo= new Grupo("iniciados");
             campo = new Campo(123, "Campo Ferias 1", "Rua da Liberdade", "Lisboa", "2341-123", "www.CF1.pt", "[90° N, 90° W]");
-            colono1 = new Colono(55555, "Serafim", "05-10-2004", 11223344, 12345, 12131415, pessoa, grupo, campo);
-            colono2 = new Colono(55555, "Serafim Morais", "09-07-2001", 55667788, 678910, 21222324, pessoa, grupo, campo);
+            colono1 = new Colono(222, "Serafim", "05-10-2004", 11223344, 12345, 12131415, pessoa, grupo, campo);
+            colono2 = new Colono(222, "Serafim Morais", "09-07-2001", 55667788, 678910, 21222324, pessoa, grupo, campo);
             monitor = new Monitor(pessoa, campo, grupo);
             FireMapperPessoasDb.Add(pessoa);
             FireMapperCamposDb.Add(campo);
             FireMapperGruposDb.Add(grupo);
             FireMapperMonitoresDb.Add(monitor);
-        }
-        public static void BenchAddReflectColono(){
-
-            FireMapperColonosDb.Add(colono1);
-        }
-        public static void BenchAddDynamicColono(){
-
-            DynamicFireMapperColonosDb.Add(colono1);
         }
 
         public static void BenchGetByIdReflectColono(){
@@ -97,12 +84,15 @@ namespace FireMapperBenchMark
         public static void BenchGetAllDynamicColonos(){
             DynamicFireMapperColonosDb.GetAll();
         }
-        public static void BenchDeleteReflectColono(){
+        public static void BenchDeleteAndAddReflectColono(){
             FireMapperColonosDb.Delete(colono1.id);
+            FireMapperColonosDb.Add(colono1);
         }
-        public static void BenchDeleteDynamicColono(){
+        public static void BenchDeleteAndAddDynamicColono(){
             DynamicFireMapperColonosDb.Delete(colono1.id);
+            DynamicFireMapperColonosDb.Add(colono1);
         }
+    
         
     }
 }
