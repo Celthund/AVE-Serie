@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\FireMapper\FireMapper.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="ave-trab1-g02-firebase-adminsdk-3f705-1ab19a5fb2.json">
+    </Content>
+  </ItemGroup>
+<ItemGroup>
+    <PackageReference Include="Google.Cloud.Firestore" Version="2.3.0" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+  </PropertyGroup>
+
+</Project>
