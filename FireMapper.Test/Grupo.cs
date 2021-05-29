@@ -1,6 +1,6 @@
 using System;
 
-namespace FireMapper.Test{
+namespace FireMapper{
     [FireCollection("Grupos")]
     public record Grupo( [property:FireKey] string nome)  {
 

@@ -1,6 +1,6 @@
 using System;
 
-namespace FireMapper.Test
+namespace FireMapper
 {
     [FireCollection("Colonos")]
     public record Colono([property: FireKey] int id,

@@ -12,8 +12,8 @@ namespace FireMapper.Test
     /// </summary>
     public class FireStoreMapperFixture : IDisposable
     {
-        const string CredentialsPath = "Resources/ave-trab1-g02-firebase-adminsdk-3f705-1ab19a5fb2.json";
-        const string ProjectId = "ave-trab1-g02";
+        const string CredentialsPath = "Resources/fire-students-e339a-firebase-adminsdk-2y9k9-adae1534d9.json";
+        const string ProjectId = "fire-students-e339a";
         const string CollectionCa = "Campos";
         const string CollectionP = "Pessoas";
         const string CollectionG = "Grupos";
@@ -21,12 +21,12 @@ namespace FireMapper.Test
         const string CollectionM = "Monitores";
         const string SOURCE_ITEMS = "Resources/isel-AVE-2021.txt";
 
-        private static Type type = typeof(WeakDataSource);
-        public readonly IDataMapper dataMapperCa = new FireDataMapper(typeof(Campo), ProjectId, CollectionCa, CredentialsPath, type);
-        public readonly IDataMapper dataMapperP = new FireDataMapper(typeof(Pessoa), ProjectId, CollectionP, CredentialsPath, type);
-        public readonly IDataMapper dataMapperG = new FireDataMapper(typeof(Grupo), ProjectId, CollectionG, CredentialsPath, type);
-        public readonly IDataMapper dataMapperCo = new FireDataMapper(typeof(Colono), ProjectId, CollectionCo, CredentialsPath, type);
-        public readonly IDataMapper dataMapperM = new FireDataMapper(typeof(Monitor), ProjectId, CollectionM, CredentialsPath, type);
+        private static Type type = typeof(WeakDataSource);  
+        public readonly IDataMapper dataMapperCa = new DynamicFireMapper(typeof(Campo), ProjectId, CollectionCa, CredentialsPath, type);
+        public readonly IDataMapper dataMapperP = new DynamicFireMapper(typeof(Pessoa), ProjectId, CollectionP, CredentialsPath, type);
+        public readonly IDataMapper dataMapperG = new DynamicFireMapper(typeof(Grupo), ProjectId, CollectionG, CredentialsPath, type);
+        public readonly IDataMapper dataMapperCo = new DynamicFireMapper(typeof(Colono), ProjectId, CollectionCo, CredentialsPath, type);
+        public readonly IDataMapper dataMapperM = new DynamicFireMapper(typeof(Monitor), ProjectId, CollectionM, CredentialsPath, type);
 
         public void Dispose()
         {
@@ -103,7 +103,7 @@ namespace FireMapper.Test
 
             Pessoa p1 = new Pessoa(111, "Tiago Ribeiro", "Porto", 929938476, "ribeiro@gmail.com");
             Pessoa p2 = new Pessoa(222, "Tiago Silva", "Lisboa", 93766876, "silva@gmail.com");
-            Pessoa p3 = new Pessoa(333, "Diogo Fernandes", "Almada", 96999585, "fernandes@gmail.com");
+            Pessoa p3 = new Pessoa(333, "Diogo Fernandes", "Seixal", 96999585, "fernandes@gmail.com");
             dataMapperP.Add(p1);
             dataMapperP.Add(p2);
             dataMapperP.Add(p3);

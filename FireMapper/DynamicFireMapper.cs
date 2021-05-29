@@ -32,7 +32,7 @@ namespace FireMapper
                 //Checks that the property is not ignored
                 if (!p.IsDefined(typeof(FireIgnore)))
                 {
-                    if (p.IsDefined(typeof(FireKey)) && FireKey == null )
+                    if (p.IsDefined(typeof(FireKey)))
                     {
                         setDataSource(p);
                         isKey = true;

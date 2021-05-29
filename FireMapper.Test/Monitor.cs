@@ -1,8 +1,8 @@
 using System;
 
-namespace FireMapper.Test{
+namespace FireMapper{
     [FireCollection("Monitores")]
-    public record Monitor( [property:FireKey] Pessoa id, [property:FireKey] Campo campoid, [property:FireKey] Grupo gruponome)  {
+    public record Monitor( [property:FireKey] Pessoa id, Campo campoid, Grupo gruponome)  {
 
     }
 }

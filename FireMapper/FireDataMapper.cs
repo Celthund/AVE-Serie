@@ -11,7 +11,6 @@ namespace FireMapper
         public FireDataMapper(Type domain, string projectId, string collection, string credentialsPath, Type dataSourceType) :
         base (domain, projectId, collection, credentialsPath, dataSourceType)
         {
-            setProperties();
         }
 
         /*
@@ -28,7 +27,7 @@ namespace FireMapper
                 if (!p.IsDefined(typeof(FireIgnore)))
                 {
                     bool isKey = false;
-                    if (p.IsDefined(typeof(FireKey)) && FireKey == null )
+                    if (p.IsDefined(typeof(FireKey)))
                     {
                         isKey = true;
                         setDataSource(p);
@@ -49,7 +48,7 @@ namespace FireMapper
                     {
                         getter = new SimplePropertyGetter(p);                       
                     }
-                    if(isKey && FireKey == null)
+                    if(isKey)
                             FireKey = getter;
                     //Adds property to properties list
                     properties.Add(getter);
