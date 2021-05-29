@@ -105,7 +105,7 @@ namespace FireMapper{
             //Iterates over the properties list
             foreach (IGetter p in properties)
             {
-                dictionary.Add(p.GetName(),p.GetValue(obj));
+                dictionary.Add(p.GetName(),p.GetKeyValue(obj));
             }
             //Updates DB with new value
             dataSource.Update(dictionary);
