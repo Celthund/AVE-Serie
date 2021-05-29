@@ -50,12 +50,14 @@ namespace FireMapper
             if (p.PropertyType.IsPrimitive)
             {
                 il.Emit(OpCodes.Ldc_I4_0);
+                il.Emit(OpCodes.Box, p.PropertyType);
             }
             else if (p.PropertyType.IsValueType)
             {
                 LocalBuilder a = il.DeclareLocal(p.PropertyType);  // declare method of type p
                 il.Emit(OpCodes.Ldloca, a);
                 il.Emit(OpCodes.Initobj, p.PropertyType);
+                il.Emit(OpCodes.Box, p.PropertyType);
             }
             else
             {
@@ -167,6 +169,7 @@ namespace FireMapper
                 il.Emit(OpCodes.Isinst, p.PropertyType);
                 il.Emit(OpCodes.Brtrue, sameType);
                 il.Emit(OpCodes.Ldtoken, p.PropertyType);
+                il.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle", new Type[] { typeof(RuntimeTypeHandle)}));
                 il.Emit(OpCodes.Call, changeType);
                 il.MarkLabel(sameType);
             }
