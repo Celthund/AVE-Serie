@@ -12,8 +12,8 @@ namespace FireSource.Test
     /// </summary>
     public class FireStoreFixture : IDisposable
     {
-        const string FIREBASE_PROJECT_ID = "dummydemo-11dd3";
-        const string FIREBASE_CREDENTIALS_PATH = "Resources/dummydemo-11dd3-firebase-adminsdk-vp6c5-28b7f0fa93.json";
+        const string FIREBASE_PROJECT_ID = "ave-campo-ferias";
+        const string FIREBASE_CREDENTIALS_PATH = "Resources/ave-campo-ferias-firebase-adminsdk-m26up-d31998ef53.json";
         const string SOURCE_ITEMS="Resources/isel-AVE-2021.txt";
         
         public readonly FireDataSource studentsDb = new FireDataSource(

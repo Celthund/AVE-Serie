@@ -12,8 +12,8 @@ namespace FireMapper.Test
     /// </summary>
     public class FireStoreMapperFixture : IDisposable
     {
-        const string CredentialsPath = "Resources/fire-students-e339a-firebase-adminsdk-2y9k9-adae1534d9.json";
-        const string ProjectId = "fire-students-e339a";
+        const string CredentialsPath = "Resources/ave-campo-ferias-firebase-adminsdk-m26up-d31998ef53.json";
+        const string ProjectId = "ave-campo-ferias";
         const string CollectionCa = "Campos";
         const string CollectionP = "Pessoas";
         const string CollectionG = "Grupos";

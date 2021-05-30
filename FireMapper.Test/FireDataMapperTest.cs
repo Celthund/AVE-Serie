@@ -27,7 +27,6 @@ namespace FireMapper.Test
             this.campoDb = fix.dataMapperCa;
             this.pessoaDb = fix.dataMapperP;
             this.grupoDb = fix.dataMapperG;
-
         }
 
         [Fact]
@@ -107,7 +106,6 @@ namespace FireMapper.Test
             Grupo g1 = new Grupo("iniciados");
             Campo campo1 = new Campo(123, "Campo Ferias 1", "Rua da Liberdade", "Lisboa", "2341-123", "www.CF1.pt", "[90° N, 90° W]");
             Monitor monitor = new Monitor(p1,campo1,g1);
-
             Monitor actualm = (Monitor)monitoresDb.GetById(p1.id);
             Assert.Equal(actualm.id.id, p1.id);  
 

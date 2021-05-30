@@ -1,17 +1,14 @@
-using System.Collections;
 using System.Collections.Generic;
-using FireSource;
 using System.Reflection;
-
-
 using System;
+
 namespace FireMapper
 {
     public class DynamicFireMapper : AbstractDataMapper
     {
         //Dynamic Getter Builder
         DynamicGetterBuilder getterBuilder;
- 
+
         /*
         Constructor
         */
@@ -75,6 +72,8 @@ namespace FireMapper
             //Save the module to a file 
             getterBuilder.SaveModule();
             //Defines properties list
+            if (!String.IsNullOrEmpty(Environment.GetEnvironmentVariable("SAVE_MODULES")))
+                getterBuilder.SaveModule();
             this.propertyGetters = properties;
         }
     }

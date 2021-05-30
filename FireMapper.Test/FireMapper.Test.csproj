@@ -23,5 +23,14 @@
     <ProjectReference Include="..\FireMapper\FireMapper.csproj" />
     <ProjectReference Include="..\FireSource.Test\FireSource.Test.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Content Include="Resources\ave-campo-ferias-firebase-adminsdk-m26up-d31998ef53.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\isel-AVE-2021.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
 </Project>
