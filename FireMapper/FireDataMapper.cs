@@ -48,6 +48,7 @@ namespace FireMapper
                     {
                         getter = new SimplePropertyGetter(p);                       
                     }
+                    //Checks and defines the FireKey getter
                     if(isKey)
                             FireKey = getter;
                     //Adds property to properties list
@@ -55,7 +56,7 @@ namespace FireMapper
                 }
             }
             //Defines properties list
-            this.properties = properties;
+            this.propertyGetters = properties;
         }
    }
 }

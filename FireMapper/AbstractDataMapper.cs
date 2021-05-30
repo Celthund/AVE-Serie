@@ -22,8 +22,8 @@ namespace FireMapper{
         protected string ProjectId;
         //Store object FireKey
         protected IGetter FireKey;
-        //Stores the collection properties
-        protected List<IGetter> properties;
+        //Stores the property getters
+        protected List<IGetter> propertyGetters;
         
         protected AbstractDataMapper(Type domain, string projectId, string collection, string credentialsPath, Type dataSourceType)
         {
@@ -45,11 +45,9 @@ namespace FireMapper{
         {
              Dictionary<string, object> dictionary = new Dictionary<string, object>();
             //Iterates over the properties list
-            foreach (IGetter p in properties)
+            foreach (IGetter p in propertyGetters)
             {
-
                 dictionary.Add(p.GetName(), p.GetKeyValue(obj));
-
             }
             //Updates DB with new value
             dataSource.Add(dictionary);
@@ -88,22 +86,21 @@ namespace FireMapper{
             dictionary = dataSource.GetById(keyValue);
             return CreateObject(dictionary);
         }
-
+        /*
+        Get key getter
+        */
         public IGetter GetFireKey()
         {
             return FireKey;
         }
-
-        public List<IGetter> GetPropertiesList()
-        {
-            return properties;
-        }
-
+        /*
+        Update object in db
+        */
         public void Update(object obj)
         {
             Dictionary<string, object> dictionary = new Dictionary<string, object>();
             //Iterates over the properties list
-            foreach (IGetter p in properties)
+            foreach (IGetter p in propertyGetters)
             {
                 dictionary.Add(p.GetName(),p.GetKeyValue(obj));
             }
@@ -127,11 +124,11 @@ namespace FireMapper{
         {
             if (dictionary is null) return null;
             //Array with object constructor arguments
-            object[] newObjProperties = new object[properties.Count];
+            object[] newObjProperties = new object[propertyGetters.Count];
             int i = 0;
 
             //Iterates over the properties list
-            foreach (IGetter p in properties)
+            foreach (IGetter p in propertyGetters)
             {
                 if (dictionary.ContainsKey(p.GetName()))
                 {
