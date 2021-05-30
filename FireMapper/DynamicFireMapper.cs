@@ -70,10 +70,9 @@ namespace FireMapper
                 }
             }
             //Save the module to a file 
-            getterBuilder.SaveModule();
-            //Defines properties list
             if (!String.IsNullOrEmpty(Environment.GetEnvironmentVariable("SAVE_MODULES")))
                 getterBuilder.SaveModule();
+            //Defines properties list
             this.propertyGetters = properties;
         }
     }
